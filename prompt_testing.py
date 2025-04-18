@@ -31,7 +31,7 @@ ADDITIONAL_REFINED_INSTRUCTIONS = textwrap.dedent("""\
 
     *   **Quotes with Inline Citations:**
         - Any verbatim quote must include:
-            1. The speaker’s name and date or document reference in parentheses.
+            1. The speaker's name and date or document reference in parentheses.
             2. An inline citation [SSX] immediately following.
         - This ensures clarity on who said it, when they said it, and the exact source.
 
@@ -999,13 +999,12 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_account_strategy_prompt(company_name: str, language: str = "Japanese"):
+def get_strategy_research_prompt(company_name: str, parent_company_name: str, language: str = "Japanese"):
     """
-    Generates a prompt for creating a comprehensive 3-year Account Strategy Action Plan
-    specifically for {company_name}, leveraging Ambo (https://www.goambo.com/)'s official context and capabilities.
-    The plan uses verifiable data from Gemini (and Ambo (https://www.goambo.com/)'s knowledge) to craft a highly
-    targeted approach, maintaining single-entity coverage. All factual claims must have an
-    inline citation [SSX].
+    Generates a prompt for creating a comprehensive 3-year Strategy Research Action Plan
+    specifically for {company_name}, considering the perspective and capabilities of the parent company ({parent_company_name}).
+    The plan uses verifiable data from Gemini to craft a highly targeted approach, maintaining single-entity coverage.
+    All factual claims must have an inline citation [SSX].
     """
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -1013,19 +1012,19 @@ def get_account_strategy_prompt(company_name: str, language: str = "Japanese"):
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
 
     return f"""
-Comprehensive 3-Year Account Strategy Action Plan for {company_name} (Ambo (https://www.goambo.com/) Specialist Approach)
+Comprehensive 3-Year Strategy Research Action Plan for {company_name} (Perspective: {parent_company_name})
 
-Objective: Create a highly detailed, data-driven account strategy for the next three fiscal years, using Ambo (https://www.goambo.com/)'s official solutions and insight. This plan must align with the verified data from Gemini and Ambo (https://www.goambo.com/)’s public resources, focusing on a single entity. Avoid generic or unsupported content.
+Objective: Create a highly detailed, data-driven strategy research plan for {company_name} for the next three fiscal years, from the perspective of {parent_company_name}. This plan must align with verified data from Gemini, focusing on {company_name}. Avoid generic or unsupported content. Identify potential strategic synergies, risks, and opportunities for {parent_company_name} in relation to {company_name}.
 
-Target Audience Context: This plan is developed for Ambo (https://www.goambo.com/). All recommendations should reflect how Ambo (https://www.goambo.com/) can best serve {company_name}, referencing real Ambo (https://www.goambo.com/) offerings, known solution strengths, and verifiable data. {AUDIENCE_CONTEXT_REMINDER}
+Target Audience Context: This plan is developed for strategic analysis within {parent_company_name}. All recommendations should reflect how {company_name}'s strategy, market position, and performance might impact or align with {parent_company_name}'s goals, referencing verifiable data. {AUDIENCE_CONTEXT_REMINDER}
 
 {language_instruction}
 
 Research Requirements:
-*   Use only data validated through Gemini or official Ambo (https://www.goambo.com/) sources.
+*   Use only data validated through Gemini search results.
 *   Each fact or figure must be backed by an inline citation [SSX]. Omit any unverified points.
-*   If employee figures appear, provide a range (e.g., 5,000–8,000 employees) if that is how data is presented.
-*   Incorporate Ambo (https://www.goambo.com/)'s known core competencies (managed services, network security, cloud integration, etc.) where relevant.
+*   If employee figures appear, provide a range (e.g., 5,000–8,000 employees) if that is how data is presented [SSX].
+*   Incorporate {parent_company_name}'s known core competencies or strategic interests where relevant for synergy analysis [SSX, if applicable].
 
 {HANDLING_MISSING_INFO_INSTRUCTION.format(language=language)}
 {RESEARCH_DEPTH_INSTRUCTION}
@@ -1034,63 +1033,62 @@ Research Requirements:
 {ANALYSIS_SYNTHESIS_INSTRUCTION}
 {ADDITIONAL_REFINED_INSTRUCTIONS}
 
-## 1. Customer Profile (Incorporating Ambo (https://www.goambo.com/) Context)
+## 1. Target Company Profile (Context: {parent_company_name})
     *   Summarize {company_name}'s business scope, HQ location, current CEO, and approximate employee range [SSX].
-    *   Reference any official Ambo (https://www.goambo.com/) insights—e.g., prior dealings, industry commentary, or synergy points—if verifiable [SSX].
+    *   Reference any official insights from {parent_company_name}'s perspective—e.g., known industry commentary, potential overlap, or strategic fit—if verifiable [SSX].
 
-## 2. Revenue Analysis & Growth Drivers
-    *   Extract revenue for FY2021, FY2022, and FY2023 if available [SSX].
+## 2. Revenue Analysis & Growth Drivers ({company_name})
+    *   Extract {company_name}'s revenue for FY2021, FY2022, and FY2023 if available [SSX].
     *   Calculate YoY growth rates; identify segments/units fueling increases or declines [SSX].
-    *   Discuss how Ambo (https://www.goambo.com/) solutions can reinforce high-growth areas or address weaknesses [SSX].
+    *   Discuss how {company_name}'s growth trajectory might present opportunities or risks for {parent_company_name} [SSX].
 
-## 3. Financial Performance Indicators
-    *   Briefly outline net income trends for 3 years [SSX].
-    *   Note profitable divisions/BU and potential Ambo (https://www.goambo.com/) alignments [SSX].
-    *   Use any margin/benchmark data to contextualize Ambo (https://www.goambo.com/)’s opportunity [SSX].
+## 3. Financial Performance Indicators ({company_name})
+    *   Briefly outline {company_name}'s net income trends for 3 years [SSX].
+    *   Note profitable divisions/BU and potential areas of interest or competition for {parent_company_name} [SSX].
+    *   Use any margin/benchmark data to contextualize {company_name}'s performance relative to {parent_company_name}'s interests [SSX].
 
-## 4. Strategic Initiatives & Key Ambo (https://www.goambo.com/) Alignments
-    *   List {company_name}’s stated initiatives (investment amounts, timeline, technology focus) [SSX].
-    *   Match each initiative to a specific Ambo (https://www.goambo.com/) solution (e.g., network modernization, security platforms) [SSX].
-    *   Emphasize the direct synergy between the initiative and a known Ambo (https://www.goambo.com/) capability.
+## 4. Strategic Initiatives ({company_name}) & Potential {parent_company_name} Alignments
+    *   List {company_name}'s stated initiatives (investment amounts, timeline, technology focus) [SSX].
+    *   Analyze potential alignment or conflict with {parent_company_name}'s strategic goals or capabilities [SSX].
+    *   Emphasize direct synergies or competitive overlaps between {company_name}'s initiatives and {parent_company_name}'s known strategy.
 
-## 5. Decision-Making Structure & Stakeholders
-    *   Outline the org chart focusing on IT budget owners or transformation leads [SSX].
-    *   Note any historical Ambo (https://www.goambo.com/)–{company_name} interactions if grounded [SSX].
+## 5. Decision-Making Structure & Key Personnel ({company_name})
+    *   Outline the org chart focusing on strategic decision-makers or transformation leads within {company_name} [SSX].
+    *   Note key individuals relevant from {parent_company_name}'s perspective (e.g., potential contacts, competitors).
 
-## 6. Critical Business Challenges & Ambo (https://www.goambo.com/) Solutions
-    *   Enumerate {company_name}’s major challenges (operational, tech, strategic) [SSX].
-    *   Propose definitive Ambo (https://www.goambo.com/) solutions for each challenge, clarifying exactly how they resolve the issue [SSX].
-    *   Avoid vague language; specify outcomes, timelines, or metrics where possible.
+## 6. Critical Business Challenges ({company_name}) & Implications for {parent_company_name}
+    *   Enumerate {company_name}'s major challenges (operational, tech, strategic) [SSX].
+    *   Analyze how these challenges might impact {parent_company_name} (e.g., supply chain risk, market disruption, partnership opportunity) [SSX].
 
-## 7. Technology Roadmap with Ambo (https://www.goambo.com/) Capabilities
-    *   Present {company_name}’s 3-year tech roadmap gleaned from data [SSX].
-    *   Show how Ambo (https://www.goambo.com/)’s offerings (e.g., managed infrastructure, AI/IoT, cloud security) tie into that roadmap [SSX].
+## 7. Technology Roadmap ({company_name}) & Relevance to {parent_company_name}
+    *   Present {company_name}'s 3-year tech roadmap gleaned from data [SSX].
+    *   Assess the relevance of this roadmap to {parent_company_name} (e.g., technology adoption trends, potential integration points, competitive tech landscape) [SSX].
 
-## 8. Engagement Strategy (FY2025–2027)
-    *   Provide a quarter-by-quarter plan:
-        - Ambo (https://www.goambo.com/) solutions proposed
-        - Target internal department/unit
-        - Direct need from {company_name}’s data
-        - Projected order values or spending estimates (if verifiable) [SSX]
-    *   No generic proposals—reference official challenges or initiatives [SSX].
+## 8. Strategic Interaction Plan (Hypothetical {parent_company_name} View - FY2025–2027)
+    *   Outline a hypothetical engagement strategy IF {parent_company_name} were to interact with {company_name}:
+        - Potential areas for collaboration or competition.
+        - Target internal department/unit within {company_name}.
+        - Alignment with {company_name}'s stated needs or challenges [SSX].
+        - Projected strategic value or risks for {parent_company_name}.
+    *   Base proposals on official challenges or initiatives of {company_name} [SSX].
 
-## 9. Competitive Positioning
-    *   Identify existing IT or communications vendors/partners per available data [SSX].
-    *   Highlight Ambo (https://www.goambo.com/)’s specific differentiators (technical, cost, brand, synergy) against each competitor [SSX].
+## 9. Competitive Positioning ({company_name} in its Market)
+    *   Identify {company_name}'s existing major competitors and partners per available data [SSX].
+    *   Analyze {company_name}'s market position and how it affects the broader landscape relevant to {parent_company_name} [SSX].
 
-## 10. Success Metrics & “Expected 2025 Results”
-    *   Provide specific, measurable goals (e.g., “Close two major deals per quarter [SSX]”).
-    *   Include a short table or bullet list with metric definitions, referencing relevant baseline data [SSX].
-    *   Label them “Expected 2025 Results” or “Projected KPIs,” and explain the calculation rationale (e.g., prior Ambo (https://www.goambo.com/) engagement patterns, external benchmarks) [SSX].
+## 10. Key Performance Indicators ({company_name}) & Strategic Implications
+    *   List key operational or financial KPIs for {company_name} based on available data [SSX].
+    *   Analyze what these KPIs imply about {company_name}'s health, strategy execution, and potential future direction, considering {parent_company_name}'s interests [SSX].
+    *   Label this section clearly based on {company_name}'s performance.
 
-## 11. Final 3-Year Account Strategy Summary
-    *   Conclude with a single paragraph (~300–500 words) integrating all insights. Demonstrate how Ambo (https://www.goambo.com/)’s approach directly tackles {company_name}’s environment and fosters mutual growth [SSX].
+## 11. Final 3-Year Strategic Research Summary ({parent_company_name} Perspective)
+    *   Conclude with a single paragraph (~300–500 words) integrating all insights from {parent_company_name}'s viewpoint. Summarize the strategic relevance of {company_name}, highlighting key opportunities, risks, and potential interaction points [SSX].
     *   Do not introduce new data; only synthesize prior points.
 
 Source and Accuracy Requirements:
-*   **Accuracy:** All data or solution references must be grounded in official records or valid Ambo (https://www.goambo.com/)/Gemini insight.  
-*   **Traceability:** Each fact or figure includes [SSX], linking to final source(s).  
-*   **Single-Entity Coverage:** Strictly reference {company_name}’s data; omit any similarly named entities.
+*   **Accuracy:** All data must be grounded in official records or valid Gemini insight for {company_name}.
+*   **Traceability:** Each fact or figure includes [SSX], linking to final source(s).
+*   **Single-Entity Coverage:** Strictly reference {company_name}'s data; omit any similarly named entities.
 
 {completion_instructions}
 {FINAL_REVIEW_INSTRUCTION}

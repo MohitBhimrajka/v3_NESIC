@@ -149,9 +149,10 @@ def generate_content(client: genai.Client, prompt: str, output_path: Path) -> Di
             "error": str(e)
         }
 
-def get_user_input() -> tuple[str, list[str], list[tuple[str, str]]]:
-    """Get company name, languages, and prompts from user input."""
-    company_name = input("\nEnter company name: ")
+def get_user_input() -> tuple[str, str, list[str], list[tuple[str, str]]]:
+    """Get company name, parent company name, languages, and prompts from user input."""
+    company_name = input("\nEnter the target company name (the one you are researching): ")
+    parent_company_name = input("Enter your company name (the one using this tool): ")
     
     print("\nAvailable languages:")
     for key, lang in AVAILABLE_LANGUAGES.items():
@@ -199,9 +200,9 @@ def get_user_input() -> tuple[str, list[str], list[tuple[str, str]]]:
         except ValueError:
             print("Invalid input. Please enter numbers separated by commas.")
     
-    return company_name, language_keys, selected_prompts
+    return company_name, parent_company_name, language_keys, selected_prompts
 
-def generate_all_prompts(company_name: str, language: str, selected_prompts: list[tuple[str, str]], progress=None, language_task_id=None):
+def generate_all_prompts(company_name: str, parent_company_name: str, language: str, selected_prompts: list[tuple[str, str]], progress=None, language_task_id=None):
     """Generate content for selected prompts in parallel using ThreadPoolExecutor."""
     start_time = time.time()
     
@@ -230,9 +231,10 @@ def generate_all_prompts(company_name: str, language: str, selected_prompts: lis
     # Save generation config in misc directory
     config = {
         "company_name": company_name,
+        "parent_company_name": parent_company_name,
         "language": language,
         "timestamp": datetime.now().isoformat(),
-        "sections": [section[0] for section in selected_prompts],  # Only selected sections
+        "sections": [section[0] for section in selected_prompts],
         "model": LLM_MODEL,
         "temperature": LLM_TEMPERATURE
     }
@@ -269,7 +271,13 @@ def generate_all_prompts(company_name: str, language: str, selected_prompts: lis
                 
             # Get the prompt function from the prompt_testing module
             prompt_func = getattr(prompt_testing, prompt_func_name)
-            prompt = prompt_func(company_name, language)
+
+            # Call the prompt function with appropriate arguments
+            if prompt_func_name == "get_strategy_research_prompt":
+                prompt = prompt_func(company_name, parent_company_name, language)
+            else:
+                prompt = prompt_func(company_name, language)
+
             output_path = markdown_dir / f"{prompt_name}.md"
             
             future = executor.submit(generate_content, client, prompt, output_path)
@@ -345,17 +353,17 @@ def generate_all_prompts(company_name: str, language: str, selected_prompts: lis
 
 def main():
     try:
-        # Get user input including prompt selection
-        company_name, language_keys, selected_prompts = get_user_input()
+        # Get user input
+        company_name, parent_company_name, language_keys, selected_prompts = get_user_input()
         
         # Create tasks for each language
         tasks = []
         for language_key in language_keys:
             language = AVAILABLE_LANGUAGES[language_key]
-            console.print(f"\nGenerating prompts for {company_name} in {language}...")
+            console.print(f"\nGenerating prompts for {company_name} (perspective: {parent_company_name}) in {language}...")
             console.print(f"Using model: {LLM_MODEL} with temperature: {LLM_TEMPERATURE}")
             console.print("Output will be saved in the 'output' directory.\n")
-            tasks.append((company_name, language))
+            tasks.append((company_name, parent_company_name, language))
 
         # Calculate optimal number of workers for language-level parallelization
         max_workers_languages = max(len(tasks) * 2, 20)
@@ -376,26 +384,27 @@ def main():
             # Create language-level progress tasks
             language_tasks = {
                 lang: progress.add_task(f"[cyan]{lang} Progress", total=len(selected_prompts))
-                for _, lang in tasks
+                for _, _, lang in tasks
             }
             
             with ThreadPoolExecutor(max_workers=max_workers_languages) as executor:
                 futures = []
-                for company, lang in tasks:
+                for company, parent_company, lang in tasks:
                     if shutdown_requested:
                         break
                     future = executor.submit(
                         generate_all_prompts,
                         company,
+                        parent_company,
                         lang,
                         selected_prompts,  # Pass selected prompts
                         progress=progress,
                         language_task_id=language_tasks[lang]
                     )
-                    futures.append((company, lang, future))
+                    futures.append((company, parent_company, lang, future))
                 
                 # Collect results
-                for company, lang, future in futures:
+                for company, parent_company, lang, future in futures:
                     try:
                         if not shutdown_requested:
                             token_stats, base_dir = future.result()

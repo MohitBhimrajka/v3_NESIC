@@ -4,7 +4,7 @@ This project generates comprehensive company analysis reports in multiple langua
 
 ## Features
 
-- Generate detailed company analysis reports covering 10 key aspects
+- Generate detailed company analysis reports covering key aspects including: Basic Info, Vision, Management Strategy, Message, Crisis Management, DX, Financials, Competition, Regulatory, Business Structure, **Strategy Research**
 - Multi-language support (Japanese, English, Chinese, Korean, Vietnamese, Thai, Indonesian, Spanish, German, French)
 - Professional PDF generation with table of contents, section covers, and consistent styling
 - Token usage tracking and execution time statistics
@@ -54,8 +54,10 @@ python test_agent_prompt.py
 ```
 
 Follow the prompts to enter:
-- Company name
+- Target company name (the company you are researching)
+- Your company name (the company using this tool, for perspective in Strategy Research)
 - Language selection (1-10)
+- Section selection (or 0 for all)
 
 The script will:
 1. Generate all sections in parallel
