@@ -149,8 +149,8 @@ def generate_content(client: genai.Client, prompt: str, output_path: Path) -> Di
             "error": str(e)
         }
 
-def get_user_input() -> tuple[str, list[str], list[tuple[str, str]], str]:
-    """Get company name, languages, prompts and target company from user input."""
+def get_user_input() -> tuple[str, list[str], list[tuple[str, str]]]:
+    """Get company name, languages, and prompts from user input."""
     company_name = input("\nEnter company name: ")
     
     print("\nAvailable languages:")
@@ -199,14 +199,9 @@ def get_user_input() -> tuple[str, list[str], list[tuple[str, str]], str]:
         except ValueError:
             print("Invalid input. Please enter numbers separated by commas.")
     
-    # If strategy_research is selected, ask for target company
-    target_company = ""
-    if any(prompt[0] == "strategy_research" for prompt in selected_prompts):
-        target_company = input("\nEnter target company for Strategy Research (the company to analyze): ")
-    
-    return company_name, language_keys, selected_prompts, target_company
+    return company_name, language_keys, selected_prompts
 
-def generate_all_prompts(company_name: str, language: str, selected_prompts: list[tuple[str, str]], target_company: str = "", progress=None, language_task_id=None):
+def generate_all_prompts(company_name: str, language: str, selected_prompts: list[tuple[str, str]], progress=None, language_task_id=None):
     """Generate content for selected prompts in parallel using ThreadPoolExecutor."""
     start_time = time.time()
     
@@ -241,11 +236,6 @@ def generate_all_prompts(company_name: str, language: str, selected_prompts: lis
         "model": LLM_MODEL,
         "temperature": LLM_TEMPERATURE
     }
-    
-    # Add target_company to config if provided
-    if target_company:
-        config["target_company"] = target_company
-        
     with open(misc_dir / "generation_config.yaml", "w") as f:
         yaml.dump(config, f)
     
@@ -279,13 +269,7 @@ def generate_all_prompts(company_name: str, language: str, selected_prompts: lis
                 
             # Get the prompt function from the prompt_testing module
             prompt_func = getattr(prompt_testing, prompt_func_name)
-            
-            # Special handling for strategy_research prompt
-            if prompt_name == "strategy_research" and target_company:
-                prompt = prompt_func(company_name, target_company, language)
-            else:
-                prompt = prompt_func(company_name, language)
-                
+            prompt = prompt_func(company_name, language)
             output_path = markdown_dir / f"{prompt_name}.md"
             
             future = executor.submit(generate_content, client, prompt, output_path)
@@ -362,7 +346,7 @@ def generate_all_prompts(company_name: str, language: str, selected_prompts: lis
 def main():
     try:
         # Get user input including prompt selection
-        company_name, language_keys, selected_prompts, target_company = get_user_input()
+        company_name, language_keys, selected_prompts = get_user_input()
         
         # Create tasks for each language
         tasks = []
@@ -405,7 +389,6 @@ def main():
                         company,
                         lang,
                         selected_prompts,  # Pass selected prompts
-                        target_company,    # Pass target company
                         progress=progress,
                         language_task_id=language_tasks[lang]
                     )
@@ -479,4 +462,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

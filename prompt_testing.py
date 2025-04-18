@@ -2,70 +2,6 @@
 
 import textwrap
 
-# --- Graph Instruction Function ---
-
-def get_graph_json_instruction() -> str:
-    """Returns the general instruction for creating graph JSON specifications with strict data accuracy."""
-    return textwrap.dedent("""\
-    **Data Visualization Inclusion (Optional, If Accurate Data Found):**
-
-    *   If, and only if, you find accurate, verifiable data from reliable sources [SSX] that directly supports a meaningful visualization relevant to the section's content, include a graph specification using the JSON format below, enclosed in `<GRAPH_JSON>` and `</GRAPH_JSON>` tags.
-    *   **CRITICAL DATA ACCURACY REQUIREMENT:** **DO NOT** include a graph if the data is incomplete, estimated, speculative, unavailable, or cannot be reliably verified with an inline citation [SSX]. Omit the entire `<GRAPH_JSON>` block for that visualization if accurate data is missing. Prioritize factual reporting over including potentially inaccurate visuals.
-    *   Ensure all data points within the JSON (labels, values) are consistent with the information cited in the main text.
-    *   The `"source"` field in the JSON must clearly state the origin of the data used for the graph, matching a citation in the text.
-
-    ```json
-    <GRAPH_JSON>
-    {
-      "type": "bar|line|pie|scatter|radar|doughnut|horizontalBar|bubble|polarArea",
-      "title": "Specific and Descriptive Graph Title",
-      "description": "Brief but clear explanation of what the graph shows and the time period covered.",
-      "data": {
-        "labels": ["Label1", "Label2", "Label3", "..."],
-        "datasets": [
-          {
-            "label": "Dataset 1 Label (e.g., Revenue in JPY Millions)",
-            "data": [numeric_value1, numeric_value2, numeric_value3, "..."], // Use actual numbers found, not placeholders
-            "backgroundColor": ["#4285F4", "#34A853", "#FBBC05", "..."] or "#4285F4", // Example colors
-            "borderColor": ["#4285F4", "#34A853", "#FBBC05", "..."] or "#4285F4",
-            "borderWidth": 1,
-            "fill": false // Typically false for line/bar, true for area/radar fills
-          }
-          // Add more datasets if comparing multiple series (e.g., different metrics, competitors)
-        ]
-      },
-      "options": { // Optional: Include specific Chart.js options if needed for clarity
-        "scales": {
-          "yAxes": [{
-            "ticks": {
-              "beginAtZero": true // Common setting for bar charts
-              // Add formatting for currency/percentage if known, e.g., "callback": "function(value) { return '¥' + value; }" (LLM should provide simple structure, backend handles complex functions)
-            }
-          }],
-          "xAxes": [{ // Example for date/time labels if applicable
-            "type": "time", // If using time series data
-            "time": {
-                "unit": "year"
-            }
-          }]
-        },
-        "legend": {
-          "display": true,
-          "position": "top" // Options: 'top', 'bottom', 'left', 'right'
-        },
-        "tooltips": { // Example tooltip configuration
-            "mode": "index",
-            "intersect": false
-        }
-      },
-      "source": "Source description [SSX] (e.g., Company FY2023 Annual Report, p. 45 [SSX])"
-    }
-    </GRAPH_JSON>
-    ```
-    Remember: Accuracy is paramount. Omit graphs entirely rather than presenting misleading or unverified data.
-    """)
-
-
 # --- Standard Instruction Blocks ---
 
 # ADDITIONAL REFINED INSTRUCTIONS: Incorporates stronger measures for accuracy, table formatting, single-entity coverage, etc.
@@ -95,7 +31,7 @@ ADDITIONAL_REFINED_INSTRUCTIONS = textwrap.dedent("""\
 
     *   **Quotes with Inline Citations:**
         - Any verbatim quote must include:
-            1. The speaker's name and date or document reference in parentheses.
+            1. The speaker’s name and date or document reference in parentheses.
             2. An inline citation [SSX] immediately following.
         - This ensures clarity on who said it, when they said it, and the exact source.
 
@@ -137,7 +73,7 @@ FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE = textwrap.dedent("""\
 
     **2. Formatting and Annotation (CRITICAL FOR PARSING):**
     *   **Source Line Format:** Present each source on a completely new line. Each line **MUST** start with a Markdown list indicator (`* ` or `- `) followed by the hyperlink in Markdown format and then its annotation.
-    *   **REQUIRED Format:**
+    *   **REQUIRED Format:** 
         ```markdown
         * [Supervity Source X](Full_Vertex_AI_Grounding_URL) - Annotation explaining exactly what information is supported (e.g., supports CEO details and FY2023 revenue [SSX]).
         ```
@@ -247,7 +183,7 @@ BASE_FORMATTING_INSTRUCTIONS = textwrap.dedent("""\
     Output Format & Quality Requirements:
 
     *   **Direct Start & No Conversational Text:** Begin the response directly with the first requested section heading (e.g., `## 1. Core Corporate Information`). No introductory or concluding remarks are allowed.
-
+    
     *   **Strict Markdown Formatting Requirements:**
         *   Use valid and consistent Markdown throughout the entire document.
         *   **Section Formatting:** Sections MUST be numbered exactly as specified in the prompt (e.g., `## 1. Core Corporate Information`).
@@ -262,7 +198,7 @@ BASE_FORMATTING_INSTRUCTIONS = textwrap.dedent("""\
             ```
         *   **Code Blocks:** Use triple backticks (```) for code blocks when presenting technical details.
         *   **Quotes:** Use Markdown quote syntax (>) for direct quotations from executives when appropriate.
-
+    
     *   **Optimal Structure & Readability:**
         *   Present numerical data in tables with proper alignment and headers.
         *   Use bullet points for lists of items or characteristics.
@@ -270,30 +206,30 @@ BASE_FORMATTING_INSTRUCTIONS = textwrap.dedent("""\
         *   Maintain consistent formatting across similar elements throughout the document.
         *   **Content Organization:** Ensure a logical sequence within each section (e.g., chronological order for trends, priority order for lists).
         *   **Conciseness:** Provide detailed yet concise language—be specific without unnecessary verbosity.
-
+    
     *   **Data Formatting Consistency:**
         *   Use appropriate thousands separators for numbers per the target language: **{language}**.
         *   **Currency Specification:** Always specify the currency (e.g., ¥, $, €, JPY, USD, EUR) for all monetary values along with the reporting period.
         *   Format dates in a consistent style (e.g., YYYY-MM-DD).
         *   Use consistent percentage formatting (e.g., 12.5%).
-
+    
     *   **Table Consistency Requirements:**
         *   All tables must have header rows with clear column titles.
         *   Include a separator row (|---|---|) between headers and data.
         *   Align column content appropriately (left for text, right for numbers).
         *   Maintain the same number of columns throughout each table.
         *   Include units in column headers where applicable (e.g., "Revenue (JPY millions)").
-
+    
     *   **Section Completion Verification:**
         *   Every section requested in the prompt MUST be included in the output.
         *   Sections must appear in the exact order specified in the prompt.
         *   Each section must be properly labeled with the exact heading from the prompt.
         *   Incomplete sections should be explicitly marked as having partial data rather than omitted entirely.
-
+    
     *   **Tone and Detail Level:**
         *   Maintain a professional, objective, and analytical tone suited for a Japanese corporate strategy audience.
         *   Provide granular detail (e.g., figures, dates, metrics) while avoiding promotional language.
-
+    
     *   **Completeness and Verification:**
         *   Address all requested points in each section.
         *   Verify that every section, the General Discussion, and the Sources list are present and adhere to the instructions.
@@ -303,55 +239,53 @@ BASE_FORMATTING_INSTRUCTIONS = textwrap.dedent("""\
         *   The Sources section should have a header with the text "Sources"
         *   The Sources section should be formatted as a Markdown unordered list.
         *   The Sources section should have a link to the source with the text "Source X" where X is the source number.
-
+                                               
     *   **Inline Citation & Specificity:** Incorporate the inline citation [SSX] for every factual claim (see Inline Citation Requirement) and include specific dates/definitions (see Specificity and Granularity).
     """)
 
 # FINAL REVIEW INSTRUCTION
 FINAL_REVIEW_INSTRUCTION = textwrap.dedent("""\
     *   **Internal Final Review:** Before generating the 'Sources' list, review your generated response for:
-
+    
         *   **Completeness Check:**
             * Every numbered section requested in the prompt is present
             * Each section contains all requested subsections and information points
             * The "General Discussion" paragraph is included
             * No sections have been accidentally omitted or truncated
-
+        
         *   **Formatting Verification:**
             * All line breaks are properly formatted
             * All section headings use correct Markdown format (`## Number. Title`)
             * All subsections use proper hierarchical format (`###` or indented bullets)
             * Tables have proper headers, separators, and consistent columns
             * Lists use consistent formatting and indentation
-            * Any included `<GRAPH_JSON>` blocks are correctly formatted and only present if supported by accurate data.
-
+        
         *   **Citation Integrity:**
             * Every factual claim has an inline citation [SSX]
             * Citations are placed immediately after the supported claim
             * All citations correspond to entries in the final Sources list
-
+        
         *   **Data Precision:**
             * All monetary values specify currency and reporting period
             * All dates are in consistent format
             * Numerical data is presented with appropriate precision and units
-            * Graph data points use actual numbers, not placeholders.
-
+        
         *   **Content Quality:**
             * Direct start with no conversational text
             * Professional tone with no placeholders or ambiguous statements
             * Adherence to missing info handling instructions
             * Logical flow within and between sections
-
+        
         *   **Single-Entity Coverage:**
             * Ensure that only the specified company name is used and no similarly named entities are included unless they are verifiably the same entity.
-
+        
         Proceed to generate the final 'Sources' list only after confirming these conditions are met.
     """)
 
 # Template for ensuring complete and properly formatted output
 COMPLETION_INSTRUCTION_TEMPLATE = textwrap.dedent("""\
     **Output Completion Requirements:**
-
+    
     Before concluding your response, verify that:
     1. Every numbered section requested in the prompt is complete with all required subsections
     2. All content follows proper markdown formatting throughout
@@ -359,7 +293,6 @@ COMPLETION_INSTRUCTION_TEMPLATE = textwrap.dedent("""\
     4. The response maintains consistent formatting for lists, tables, and code blocks
     5. All inline citations [SSX] are properly placed, with no extraneous or fabricated URLs
     6. Strictly focus on the exact named company (no confusion with similarly named entities)
-    7. Any included `<GRAPH_JSON>` blocks adhere strictly to the format and data accuracy requirements.
 """)
 
 # --- Prompt Generating Functions ---
@@ -370,59 +303,7 @@ def get_basic_prompt(company_name: str, language: str = "Japanese"):
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
-
-    # Added Section-specific graph instructions
-    section_graphs = textwrap.dedent("""\
-        Consider including these visualizations if accurate data is available:
-
-        1. Employee Count Trend (if data for multiple years exists):
-        <GRAPH_JSON>
-        {
-          "type": "bar",
-          "title": "Total Number of Employees (Last 3-5 Years)",
-          "description": "Shows the trend in the company's total workforce size over recent years.",
-          "data": {
-            "labels": ["FYXXXX", "FYXXXX", "FYXXXX"], // E.g., ["FY2021", "FY2022", "FY2023"]
-            "datasets": [
-              {
-                "label": "Number of Employees",
-                "data": [employee_count_y1, employee_count_y2, employee_count_y3], // Actual numbers
-                "backgroundColor": "#34A853"
-              }
-            ]
-          },
-          "options": {
-            "scales": { "yAxes": [{"ticks": {"beginAtZero": true}}] }
-          },
-          "source": "Company Annual Reports or Sustainability Reports [SSX]"
-        }
-        </GRAPH_JSON>
-
-        2. Revenue by Primary Business Segment (if segment data readily available here):
-        <GRAPH_JSON>
-        {
-          "type": "pie", // Or 'doughnut'
-          "title": "Revenue Distribution by Business Segment (Latest Fiscal Year)",
-          "description": "Shows the percentage contribution of each major business segment to total revenue.",
-          "data": {
-            "labels": ["Segment A Name", "Segment B Name", "Segment C Name", "Others"], // Actual segment names
-            "datasets": [
-              {
-                "label": "Revenue Percentage",
-                "data": [percentage1, percentage2, percentage3, percentage_other], // Actual percentages adding to 100
-                "backgroundColor": ["#4285F4", "#34A853", "#FBBC05", "#EA4335"] // Example colors
-              }
-            ]
-          },
-          "options": {
-             "legend": { "position": "right" }
-          },
-          "source": "Company Latest Annual Report [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
+    
     return f"""
 Comprehensive Corporate Profile, Strategic Overview, and Organizational Analysis of {company_name}
 
@@ -477,15 +358,12 @@ Conduct in-depth research using {company_name}'s official sources. Every factual
 ## 7. Leadership Strategic Outlook (Verbatim Quotes):
     *   **CEO & Chairman:** Provide at least four direct, meaningful quotes focusing on long-term vision, key challenges, growth strategies, and market outlook. Each quote must be followed immediately by its source citation in parentheses (e.g., "(Source: Annual Report 2023, p.5)"), and an inline citation [SSX] should be included where the quote supports specific claims in the analysis.
     *   **Other Key Executives (e.g., CFO, CSO, CTO, Regional Heads):** Provide at least three direct quotes each with similar detailed attribution and inline citation [SSX] where applicable.
-
+    
 ## 8. General Discussion:
     *   Provide a concluding single paragraph (approximately 300-500 words).
     *   **Synthesize** the key findings exclusively from Sections 1-7, explicitly linking analysis (e.g., "The declining revenue margin [SSX] suggests...") and ensuring every claim is supported by an inline citation.
     *   Structure your analysis logically by starting with an overall assessment, then discussing strengths and opportunities, followed by weaknesses and risks, and concluding with an outlook relevant for the Japanese audience.
     *   **Do not introduce new factual claims** that are not derived from the previous sections.
-
-{base_graph_instruction}
-{section_graphs}
 
 Source and Accuracy Requirements:
 *   **Accuracy:** All information must be factually correct, current, and verifiable against grounded sources. Specify currency and reporting periods for all monetary data.
@@ -505,123 +383,11 @@ def get_financial_prompt(company_name: str, language: str = "Japanese"):
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
     enhanced_financial_research_instructions = textwrap.dedent(f"""\
     *   **Mandatory Deep Search & Calculation:** Conduct an exhaustive search within {company_name}'s official financial disclosures for the last 3 fiscal years, including Annual Reports, Financial Statements (Income Statement, Balance Sheet, Cash Flow Statement), Footnotes, Supplementary Data Packs, official filings, and IR materials. Do not rely solely on summary tables; examine detailed statements and notes for definitions and components [SSX].
     *   **Calculation Obligation:** For financial metrics such as Margins, ROE, ROA, Debt-to-Equity, and ROIC: if not explicitly stated, calculate them using standard formulas only if all necessary base data is available and verifiable. Clearly state the calculation method and any averages used (e.g., "ROE (Calculated: Net Income / Average Shareholders' Equity)") [SSX].
     *   **Strict Omission Policy:** If a metric cannot be found or reliably calculated, omit that specific line item entirely. Never use placeholders like 'N/A' [SSX].
     """)
-
-    # Added Section-specific graph instructions
-    section_graphs = textwrap.dedent("""\
-        Consider including these financial visualizations if accurate data for at least 3 years is available:
-
-        1. Key Financial Performance Trends:
-        <GRAPH_JSON>
-        {
-          "type": "bar",
-          "title": "Key Financial Metrics (Last 3 Fiscal Years)",
-          "description": "Comparison of Total Revenue, Operating Income, and Net Income over the last 3 fiscal years.",
-          "data": {
-            "labels": ["FYXXXX", "FYXXXX", "FYXXXX"], // E.g., ["FY2021", "FY2022", "FY2023"]
-            "datasets": [
-              {
-                "label": "Total Revenue (Specify Currency)", // E.g., "Revenue (JPY Billions)"
-                "data": [revenue_y1, revenue_y2, revenue_y3], // Actual numbers
-                "backgroundColor": "#4285F4"
-              },
-              {
-                "label": "Operating Income (Specify Currency)",
-                "data": [op_income_y1, op_income_y2, op_income_y3], // Actual numbers
-                "backgroundColor": "#34A853"
-              },
-              {
-                "label": "Net Income (Specify Currency)",
-                "data": [net_income_y1, net_income_y2, net_income_y3], // Actual numbers
-                "backgroundColor": "#FBBC05"
-              }
-            ]
-          },
-          "options": {
-            "scales": { "yAxes": [{"ticks": {"beginAtZero": true}}] }
-          },
-          "source": "Company Financial Statements [SSX]"
-        }
-        </GRAPH_JSON>
-
-        2. Profitability Ratio Trends:
-        <GRAPH_JSON>
-        {
-          "type": "line",
-          "title": "Profitability Ratios (Last 3-5 Fiscal Years)",
-          "description": "Trends in Operating Margin, Net Profit Margin, and Return on Equity (ROE).",
-          "data": {
-            "labels": ["FYXXXX", "FYXXXX", "FYXXXX", "FYXXXX", "FYXXXX"], // E.g., ["FY2019", ..., "FY2023"]
-            "datasets": [
-              {
-                "label": "Operating Margin (%)",
-                "data": [op_margin_y1, op_margin_y2, op_margin_y3, op_margin_y4, op_margin_y5], // Actual percentages
-                "borderColor": "#4285F4",
-                "fill": false
-              },
-              {
-                "label": "Net Profit Margin (%)",
-                "data": [net_margin_y1, net_margin_y2, net_margin_y3, net_margin_y4, net_margin_y5], // Actual percentages
-                "borderColor": "#34A853",
-                "fill": false
-              },
-              {
-                "label": "ROE (%)",
-                "data": [roe_y1, roe_y2, roe_y3, roe_y4, roe_y5], // Actual percentages
-                "borderColor": "#FBBC05",
-                "fill": false
-              }
-            ]
-          },
-          "options": {
-             "scales": { "yAxes": [{"ticks": { "callback": "function(value) { return value + '%'; }" }}] } // Suggest % format
-          },
-          "source": "Calculated from Company Financial Statements [SSX]"
-        }
-        </GRAPH_JSON>
-
-        3. Cash Flow Components (Optional, if data allows clear visualization):
-        <GRAPH_JSON>
-        {
-            "type": "bar",
-            "title": "Cash Flow Components (Last 3 Fiscal Years)",
-            "description": "Shows net cash flow from operating, investing, and financing activities.",
-            "data": {
-                "labels": ["FYXXXX", "FYXXXX", "FYXXXX"], // E.g., ["FY2021", "FY2022", "FY2023"]
-                "datasets": [
-                    {
-                        "label": "Operating Cash Flow (Specify Currency)",
-                        "data": [ocf_y1, ocf_y2, ocf_y3],
-                        "backgroundColor": "#4CAF50"
-                    },
-                    {
-                        "label": "Investing Cash Flow (Specify Currency)",
-                        "data": [icf_y1, icf_y2, icf_y3],
-                        "backgroundColor": "#FF9800"
-                    },
-                    {
-                        "label": "Financing Cash Flow (Specify Currency)",
-                        "data": [fcf_y1, fcf_y2, fcf_y3],
-                        "backgroundColor": "#2196F3"
-                    }
-                ]
-            },
-            "options": {
-                "scales": {
-                    "xAxes": [{"stacked": true}], // Suggest stacking for components
-                    "yAxes": [{"stacked": true, "ticks": {"beginAtZero": false}}] // Allow negative values
-                }
-            },
-            "source": "Company Cash Flow Statements [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
     return f"""
 Comprehensive Strategic Financial Analysis of {company_name} (Last 3 Fiscal Years)
 
@@ -698,9 +464,6 @@ For each section, provide verifiable data with inline citations [SSX] and specif
     *   Structure the discussion logically by starting with an overall assessment of financial health, then discussing key trends and deviations, and conclude with an outlook tailored to a Japanese audience.
     *   Do not introduce any new factual claims that are not supported by previous sections.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** All information must be current and verifiable. Specify currency and reporting period for every monetary value.
 *   **Source Specificity:** Every data point must include an inline citation [SSX] that corresponds to a specific source in the final Sources list.
@@ -719,7 +482,6 @@ def get_competitive_landscape_prompt(company_name: str, language: str = "Japanes
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
     competitive_research_instructions = textwrap.dedent(f"""\
     **Research & Grounding Strategy for Competitive Analysis:**
 
@@ -729,58 +491,6 @@ def get_competitive_landscape_prompt(company_name: str, language: str = "Japanes
     4.  **Focus on Verifiable Data:** Ensure accuracy by using only officially grounded and verifiable information. If competitor details come from dubious sources, omit them.
     5.  **Final Source List Integrity:** The final "Sources" list must include only the Vertex AI grounding URLs provided for this query, and inline citations [SSX] must match these sources.
     """)
-
-    # Added Section-specific graph instructions
-    section_graphs = textwrap.dedent("""\
-        Consider including these competitive visualizations if accurate, comparable data is available:
-
-        1. Estimated Market Share:
-        <GRAPH_JSON>
-        {
-          "type": "pie", // or 'doughnut'
-          "title": "Estimated Market Share (Specific Market/Region, Year)",
-          "description": "Shows estimated market share distribution among key competitors in a defined market.",
-          "data": {
-            "labels": ["{company_name}", "Competitor A", "Competitor B", "Others"], // Actual company names
-            "datasets": [
-              {
-                "label": "Market Share (%)",
-                "data": [share_company, share_compA, share_compB, share_others], // Actual percentages
-                "backgroundColor": ["#4285F4", "#EA4335", "#FBBC05", "#34A853"] // Example colors
-              }
-            ]
-          },
-          "options": {
-             "legend": { "position": "right" }
-          },
-          "source": "Specify source (e.g., Market Research Report Name/Date) [SSX] or Company Estimate [SSX]"
-        }
-        </GRAPH_JSON>
-
-        2. Competitor Financial Comparison (if consistent data is found):
-        <GRAPH_JSON>
-        {
-          "type": "bar",
-          "title": "Revenue Comparison (Latest Fiscal Year)",
-          "description": "Compares total revenue of {company_name} against key competitors.",
-          "data": {
-            "labels": ["{company_name}", "Competitor A", "Competitor B"], // Actual company names
-            "datasets": [
-              {
-                "label": "Revenue (Specify Currency)", // E.g., "Revenue (USD Billions)"
-                "data": [revenue_company, revenue_compA, revenue_compB], // Actual revenue numbers
-                "backgroundColor": ["#4285F4", "#EA4335", "#FBBC05"] // Example colors
-              }
-            ]
-          },
-           "options": {
-            "scales": { "yAxes": [{"ticks": {"beginAtZero": true}}] }
-          },
-          "source": "Competitor Annual Reports/Financial Statements [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
     return f"""
 Detailed Competitive Analysis and Strategic Positioning of {company_name}
 
@@ -824,9 +534,6 @@ Target Audience Context: This output is for strategic review by a **Japanese com
     *   Structure the analysis logically by starting with an overall assessment, discussing strengths and weaknesses, and concluding with strategic takeaways for the Japanese audience.
     *   Do not introduce new factual claims that are not supported by previous sections.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** All information must be factual and current. Specify currency, dates, and reporting periods.
 *   **Traceability:** Every claim must include an inline citation [SSX] corresponding to a grounding URL in the final Sources list.
@@ -834,7 +541,7 @@ Source and Accuracy Requirements:
 
 {completion_instructions}
 {FINAL_REVIEW_INSTRUCTION}
-{final_source_instructions}
+{final_source_instructions} 
 {formatting_instructions}
 """.strip()
 
@@ -845,59 +552,7 @@ def get_management_strategy_prompt(company_name: str, language: str = "Japanese"
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
-
-    # Added Section-specific graph instructions
-    section_graphs = textwrap.dedent("""\
-        Consider including these strategy-related visualizations if accurate data is available:
-
-        1. Mid-Term Plan Financial Targets vs. Actuals (if progress reported):
-        <GRAPH_JSON>
-        {
-          "type": "bar",
-          "title": "MTP Financial Target Progress (e.g., Revenue/Operating Income)",
-          "description": "Compares the Mid-Term Plan target for a specific metric against actual results achieved so far.",
-          "data": {
-            "labels": ["Target FYXXXX", "Actual FYXXXX", "Target FYYYYY", "Actual FYYYYY"], // Specific metric and years
-            "datasets": [
-              {
-                "label": "Metric (Specify Currency)", // E.g., "Revenue (JPY Trillion)"
-                "data": [target_value1, actual_value1, target_value2, actual_value2], // Actual numbers
-                "backgroundColor": ["#AECBFA", "#4285F4", "#AECBFA", "#4285F4"] // Example: Light for target, Dark for actual
-              }
-            ]
-          },
-          "options": {
-             "scales": { "yAxes": [{"ticks": {"beginAtZero": true}}] }
-          },
-          "source": "Company MTP documents and Progress Reports [SSX]"
-        }
-        </GRAPH_JSON>
-
-        2. Strategic Investment Allocation (if breakdown available):
-        <GRAPH_JSON>
-        {
-          "type": "pie",
-          "title": "Planned Strategic Investment Allocation (Current MTP Period)",
-          "description": "Shows the distribution of planned investments across key strategic focus areas.",
-          "data": {
-            "labels": ["Area 1 Name", "Area 2 Name", "Area 3 Name", "Other Strategic"], // Actual focus area names
-            "datasets": [
-              {
-                "label": "Investment Percentage",
-                "data": [percentage1, percentage2, percentage3, percentage_other], // Actual allocation percentages
-                "backgroundColor": ["#4285F4", "#34A853", "#FBBC05", "#EA4335"] // Example colors
-              }
-            ]
-          },
-           "options": {
-             "legend": { "position": "right" }
-          },
-          "source": "Company Mid-Term Plan Presentation/Documents [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
+    
     return f"""
 Comprehensive Analysis of {company_name}'s Management Strategy and Mid-Term Business Plan: Focus, Execution, and Progress
 
@@ -908,7 +563,7 @@ Target Audience Context: This analysis is designed for a **Japanese company** ne
 {language_instruction}
 
 Research Requirements:
-Conduct in-depth research from official sources (IR documents, Annual/Integrated Reports, earnings call transcripts, strategic website sections) ensuring all claims include inline citations [SSX] and specific dates or reporting periods.
+Conduct in-depth research from official sources (IR documents, Annual/Integrated Reports, earnings call transcripts, strategic website sections) ensuring all claims include inline citations [SSX] and specific dates or reporting periods. 
 {HANDLING_MISSING_INFO_INSTRUCTION.format(language=language)}
 {RESEARCH_DEPTH_INSTRUCTION}
 {SPECIFICITY_INSTRUCTION}
@@ -944,9 +599,6 @@ Conduct in-depth research from official sources (IR documents, Annual/Integrated
     *   Structure the discussion logically by starting with an overall assessment, discussing execution challenges, and concluding with strategic takeaways relevant for a Japanese audience.
     *   Do not introduce any new claims that are not derived from the previous sections.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** Information must be factually correct. Specify currency and exact dates for all data.
 *   **Traceability:** Every claim must have an inline citation [SSX] linked to the final Sources list.
@@ -965,37 +617,7 @@ def get_regulatory_prompt(company_name: str, language: str = "Japanese"):
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
-
-    # Added Section-specific graph instructions (Regulatory context is less commonly visualized with standard charts)
-    section_graphs = textwrap.dedent("""\
-        Visualizations for regulatory topics are less common. Only include if specific, quantifiable data related to compliance efforts or impacts is found:
-
-        1. Trend in Compliance-Related Investment (Optional, if data exists):
-        <GRAPH_JSON>
-        {
-          "type": "line",
-          "title": "Reported Compliance/Security Investment Trend (Last 3-5 Years)",
-          "description": "Shows the trend in company investment allocated specifically to compliance, data privacy, or cybersecurity initiatives.",
-          "data": {
-            "labels": ["FYXXXX", "FYXXXX", "FYXXXX"], // E.g., ["FY2021", "FY2022", "FY2023"]
-            "datasets": [
-              {
-                "label": "Investment Amount (Specify Currency)",
-                "data": [investment_y1, investment_y2, investment_y3], // Actual numbers if reported
-                "borderColor": "#EA4335",
-                "fill": false
-              }
-            ]
-          },
-          "options": {
-             "scales": { "yAxes": [{"ticks": {"beginAtZero": true}}] }
-          },
-          "source": "Company Sustainability Reports or Specific Disclosures [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
+    
     return f'''
 In-Depth Analysis of the Regulatory Environment and Compliance for {company_name}'s Digital Transformation (DX)
 
@@ -1026,9 +648,6 @@ Conduct deep research on {company_name}'s regulatory environment using official 
     *   Structure the analysis by summarizing the regulatory environment, assessing compliance strengths and weaknesses, and concluding with an evaluation of risk tailored to a Japanese audience.
     *   Do not introduce new factual claims beyond the provided analysis.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** All regulatory details must be current and verifiable. Include specific dates and currency information as applicable.
 *   **Traceability:** Each statement must have an inline citation [SSX] corresponding to the final Sources list.
@@ -1047,36 +666,7 @@ def get_crisis_prompt(company_name: str, language: str = "Japanese"):
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
-
-    # Added Section-specific graph instructions (Crisis context is less commonly visualized)
-    section_graphs = textwrap.dedent("""\
-        Visualizations for crisis management are infrequent. Only include if quantifiable data on incident types or frequency is explicitly reported:
-
-        1. Type/Frequency of Reported Digital Incidents (Optional, if data exists over time):
-        <GRAPH_JSON>
-        {
-          "type": "bar",
-          "title": "Reported Digital Incidents by Type (Last 3-5 Years)",
-          "description": "Shows the frequency of different types of publicly reported digital security or operational incidents.",
-          "data": {
-            "labels": ["Incident Type A", "Incident Type B", "Incident Type C"], // E.g., ["Data Breach", "Ransomware", "System Outage"]
-            "datasets": [
-              {
-                "label": "Number of Incidents",
-                "data": [count1, count2, count3], // Actual counts if reported
-                "backgroundColor": ["#EA4335", "#FBBC05", "#4285F4"]
-              }
-            ]
-          },
-          "options": {
-             "scales": { "yAxes": [{"ticks": {"beginAtZero": true}}] }
-          },
-          "source": "Compiled from official disclosures or reputable security reports [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
+    
     return f'''
 In-Depth Analysis of {company_name}'s Digital Crisis Management and Business Continuity
 
@@ -1105,9 +695,6 @@ Conduct thorough research on {company_name}'s crisis management and business con
     *   Structure the discussion logically, starting with a summary of past incidents, followed by evaluation of the response and preparedness, and concluding with strengths, weaknesses, and recommendations relevant to a Japanese audience.
     *   Do not introduce any new claims not supported by the previous analysis.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** All incident details and response measures must be current, with currency and exact dates specified.
 *   **Traceability:** Every claim must include an inline citation [SSX] linked to a source in the final Sources list.
@@ -1126,61 +713,7 @@ def get_digital_transformation_prompt(company_name: str, language: str = "Japane
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
-
-    # Added Section-specific graph instructions
-    section_graphs = textwrap.dedent("""\
-        Consider including these DX-related visualizations if accurate data is available:
-
-        1. DX Investment Trend (if specific figures reported):
-        <GRAPH_JSON>
-        {
-          "type": "line", // or 'bar'
-          "title": "Digital Transformation Investment Trend (Last 3-5 Years)",
-          "description": "Shows the trend in reported investment specifically allocated to DX initiatives.",
-          "data": {
-            "labels": ["FYXXXX", "FYXXXX", "FYXXXX"], // E.g., ["FY2021", "FY2022", "FY2023"]
-            "datasets": [
-              {
-                "label": "DX Investment (Specify Currency)",
-                "data": [dx_investment_y1, dx_investment_y2, dx_investment_y3], // Actual reported numbers
-                "borderColor": "#FBBC05",
-                "backgroundColor": "rgba(251, 188, 5, 0.1)",
-                "fill": true
-              }
-            ]
-          },
-          "options": {
-             "scales": { "yAxes": [{"ticks": {"beginAtZero": true}}] }
-          },
-          "source": "Company Investor Relations Materials or Annual Reports [SSX]"
-        }
-        </GRAPH_JSON>
-
-        2. DX Initiative Outcome Example (if quantifiable results reported for a case study):
-        <GRAPH_JSON>
-        {
-          "type": "bar",
-          "title": "Example DX Initiative Outcome: [Initiative Name]",
-          "description": "Shows a key performance indicator before and after the implementation of a specific DX initiative.",
-          "data": {
-            "labels": ["Before Initiative", "After Initiative"],
-            "datasets": [
-              {
-                "label": "Metric (e.g., Process Time in Hours, Cost Saving %)", // Specify metric
-                "data": [value_before, value_after], // Actual numbers
-                "backgroundColor": ["#AECBFA", "#4285F4"] // Example colors
-              }
-            ]
-          },
-          "options": {
-             "scales": { "yAxes": [{"ticks": {"beginAtZero": true}}] }
-          },
-          "source": "Company Case Study or Report on [Initiative Name] [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
+    
     return f"""
 In-Depth Analysis of {company_name}'s Digital Transformation (DX) Strategy and Execution
 
@@ -1223,9 +756,6 @@ Conduct detailed research on {company_name}'s DX journey using official sources 
     *   Structure your discussion logically—start with the DX strategy, proceed through investment and implementation details, then integrate regulatory and risk management aspects.
     *   Tailor your final analysis for a Japanese audience. Do not introduce new facts outside of the presented analysis.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** All data must be current and verified. Specify currency and reporting period for every monetary value.
 *   **Traceability:** Every fact must include an inline citation [SSX] that corresponds to a source in the final Sources list.
@@ -1244,103 +774,29 @@ def get_business_structure_prompt(company_name: str, language: str = "Japanese")
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
+    
     business_structure_completion_guidance = textwrap.dedent(f"""\
     **Critical Completeness Requirements:**
-
+    
     *   **Priority Information:** If time or data are limited, prioritize completing:
         1. The business segment breakdown with at least the most recent fiscal year data
         2. The geographic segment breakdown with at least the most recent fiscal year data
         3. The top 3-5 major shareholders
-
+        
     *   **Progressive Completion:** For each section, provide at least basic information before attempting more detailed analysis:
         * For segments: At minimum, list main segments and their % of revenue for the most recent year
         * For geography: At minimum, list main regions and their % of revenue for the most recent year
         * For shareholders: At minimum, list the largest institutional/individual shareholders
-
+        
     *   **Partial Data Handling:** If 3-year data is unavailable, clearly state the available timeframe (e.g., "Data available for FY2022-2023 only [SSX]") and proceed with analysis of available data rather than omitting the entire section.
-
+    
     *   **Final Verification:** Before completing each section, verify:
         * All priority information points are addressed
         * At least one full fiscal year of data is provided for segments
         * All available ownership information is included
         * Each data point includes proper inline citation [SSX]
     """)
-
-    # Added Section-specific graph instructions
-    section_graphs = textwrap.dedent("""\
-        Consider including these structure-related visualizations if accurate data is available:
-
-        1. Revenue by Business Segment (Similar to Basic Prompt, but crucial here):
-        <GRAPH_JSON>
-        {
-          "type": "pie", // Or 'doughnut'
-          "title": "Revenue Distribution by Business Segment (Latest Fiscal Year)",
-          "description": "Shows the percentage contribution of each major business segment to total revenue.",
-          "data": {
-            "labels": ["Segment A Name", "Segment B Name", "Segment C Name", "Others"], // Actual segment names
-            "datasets": [
-              {
-                "label": "Revenue Percentage",
-                "data": [percentage1, percentage2, percentage3, percentage_other], // Actual percentages adding to 100
-                "backgroundColor": ["#4285F4", "#34A853", "#FBBC05", "#EA4335"] // Example colors
-              }
-            ]
-          },
-          "options": {
-             "legend": { "position": "right" }
-          },
-          "source": "Company Latest Annual Report/Segment Information [SSX]"
-        }
-        </GRAPH_JSON>
-
-        2. Revenue by Geographic Region:
-        <GRAPH_JSON>
-        {
-          "type": "pie", // Or 'doughnut'
-          "title": "Revenue Distribution by Geographic Region (Latest Fiscal Year)",
-          "description": "Shows the percentage contribution of each major geographic region to total revenue.",
-          "data": {
-            "labels": ["Region A Name", "Region B Name", "Region C Name", "Others"], // Actual region names (e.g., Japan, North America, EMEA)
-            "datasets": [
-              {
-                "label": "Revenue Percentage",
-                "data": [geo_percentage1, geo_percentage2, geo_percentage3, geo_percentage_other], // Actual percentages
-                "backgroundColor": ["#4285F4", "#34A853", "#FBBC05", "#EA4335"] // Example colors
-              }
-            ]
-          },
-          "options": {
-             "legend": { "position": "right" }
-          },
-          "source": "Company Latest Annual Report/Geographic Segment Information [SSX]"
-        }
-        </GRAPH_JSON>
-
-        3. Major Shareholder Types (if breakdown available):
-        <GRAPH_JSON>
-        {
-            "type": "doughnut",
-            "title": "Major Shareholder Types (as of [Date])",
-            "description": "Distribution of ownership among different types of major shareholders.",
-            "data": {
-                "labels": ["Institutional Investors", "Foreign Investors", "Individuals", "Treasury Stock", "Other Corps"], // Example categories
-                "datasets": [
-                    {
-                        "label": "Ownership Percentage",
-                        "data": [inst_perc, foreign_perc, indiv_perc, treas_perc, other_perc], // Actual percentages
-                        "backgroundColor": ["#007bff", "#28a745", "#ffc107", "#6c757d", "#17a2b8"]
-                    }
-                ]
-            },
-            "options": {
-                "legend": { "position": "bottom" }
-            },
-            "source": "Company Shareholder Information / Corporate Governance Report [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
+    
     return f"""
 In-Depth Analysis of {company_name}'s Business Structure, Geographic Footprint, Ownership, and Strategic Vision Linkages
 
@@ -1423,9 +879,6 @@ Perform a critical analysis using official sources (Annual/Integrated Reports, I
     *   Structure your discussion logically, starting with a summary of business and geographic drivers, assessing ownership influence and leadership vision, and concluding with strategic implications for a Japanese audience.
     *   Do not introduce new unsupported claims.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** Ensure all data is precise, with currency and fiscal year reported for numerical values.
 *   **Traceability:** Every fact must include an inline citation [SSX] corresponding to the final Sources list.
@@ -1444,39 +897,7 @@ def get_vision_prompt(company_name: str, language: str = "Japanese"):
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
-
-    # Added Section-specific graph instructions (Vision is often qualitative, graphs depend on specific KPIs)
-    section_graphs = textwrap.dedent("""\
-        Consider including visualizations only if specific, measurable KPIs related to the vision are reported:
-
-        1. Progress on Key Vision KPI (Example: Sustainability Goal):
-        <GRAPH_JSON>
-        {
-          "type": "line", // Or 'gauge' if supported and appropriate
-          "title": "Progress Towards Vision KPI: [KPI Name]", // E.g., "CO2 Emissions Reduction"
-          "description": "Shows the trend or progress towards a specific, measurable target linked to the company vision.",
-          "data": {
-            "labels": ["Year 1", "Year 2", "Year 3", "Target Year"], // Actual years/milestones
-            "datasets": [
-              {
-                "label": "KPI Value (Specify Units)", // E.g., "CO2 Emissions (Million Tons)"
-                "data": [kpi_value1, kpi_value2, kpi_value3, kpi_target_value], // Actual reported values and target
-                "borderColor": "#34A853",
-                "backgroundColor": "rgba(52, 168, 83, 0.1)",
-                "fill": true
-              }
-              // Optionally add a dataset for the target line if type is not 'gauge'
-            ]
-          },
-           "options": {
-             "scales": { "yAxes": [{"ticks": {"beginAtZero": false}}] } // May not start at zero
-          },
-          "source": "Company Sustainability Report or Vision Progress Update [SSX]"
-        }
-        </GRAPH_JSON>
-        """)
-
+    
     return f"""
 Analysis of {company_name}'s Strategic Vision and Purpose
 
@@ -1505,9 +926,6 @@ Conduct in-depth research using official sources such as the company website (st
     *   Structure the analysis logically—starting with an overall summary, then detailing components, and finally evaluating strategic relevance for a Japanese audience.
     *   Do not introduce new claims beyond the synthesized findings.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** Ensure all statements are current and verified. Specify currency for financial KPIs.
 *   **Traceability:** Every claim must have an inline citation [SSX] that corresponds to a source in the final Sources list.
@@ -1526,10 +944,7 @@ def get_management_message_prompt(company_name: str, language: str = "Japanese")
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    # No graphs are typically relevant for a section purely focused on verbatim quotes.
-    base_graph_instruction = get_graph_json_instruction() # Include general instruction just in case, but no specific examples needed.
-    section_graphs = "" # Explicitly empty
-
+    
     return f"""
 Detailed Leadership Strategic Outlook (Verbatim Quotes) for {company_name}
 
@@ -1572,9 +987,6 @@ Conduct focused research on official communications (e.g., Earnings Call Transcr
     *   Structure your analysis logically and tailor the insights for the Japanese audience.
     *   Do not introduce any new factual claims that are not derived from the quotes.
 
-{base_graph_instruction}
-{section_graphs}
-
 Source and Accuracy Requirements:
 *   **Accuracy:** Every quote must be verbatim with correct speaker roles and dates.
 *   **Traceability:** Each quote must include an inline citation [SSX] corresponding to the final Sources list.
@@ -1587,11 +999,11 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_strategy_research_prompt(company_name: str, target_company: str, language: str = "Japanese"):
+def get_account_strategy_prompt(company_name: str, language: str = "Japanese"):
     """
-    Generates a prompt for creating a comprehensive 3-year Strategy Research Action Plan
-    specifically for {target_company}, leveraging {company_name}'s official context and capabilities.
-    The plan uses verifiable data from Gemini (and {company_name}'s knowledge) to craft a highly
+    Generates a prompt for creating a comprehensive 3-year Account Strategy Action Plan
+    specifically for {company_name}, leveraging NESIC's official context and capabilities.
+    The plan uses verifiable data from Gemini (and NESIC's knowledge) to craft a highly
     targeted approach, maintaining single-entity coverage. All factual claims must have an
     inline citation [SSX].
     """
@@ -1599,74 +1011,21 @@ def get_strategy_research_prompt(company_name: str, target_company: str, languag
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
     formatting_instructions = BASE_FORMATTING_INSTRUCTIONS.format(language=language)
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
-    base_graph_instruction = get_graph_json_instruction() # Added
-
-    # Added Section-specific graph instructions relevant to the target company analysis
-    section_graphs = textwrap.dedent(f"""\
-        Consider including these visualizations about {target_company} if accurate data is available:
-
-        1. {target_company} Revenue Trend:
-        <GRAPH_JSON>
-        {{
-          "type": "line",
-          "title": "{target_company} - Revenue Trend (Last 3-5 Years)",
-          "description": "Shows the historical revenue performance of {target_company}.",
-          "data": {{
-            "labels": ["FYXXXX", "FYXXXX", "FYXXXX"], // E.g., ["FY2021", "FY2022", "FY2023"]
-            "datasets": [
-              {{
-                "label": "Revenue (Specify Currency)",
-                "data": [target_revenue_y1, target_revenue_y2, target_revenue_y3], // Actual numbers for target company
-                "borderColor": "#4285F4",
-                "fill": false
-              }}
-            ]
-          }},
-          "options": {{
-             "scales": {{ "yAxes": [{{"ticks": {{"beginAtZero": true}}}}] }}
-          }},
-          "source": "{target_company} Annual Reports or reliable financial database [SSX]"
-        }}
-        </GRAPH_JSON>
-
-        2. {target_company} - Potential Opportunity Size by {company_name} Solution Area (Hypothetical, based on analysis):
-        <GRAPH_JSON>
-        {{
-          "type": "bar",
-          "title": "Estimated Opportunity Size for {company_name} at {target_company} (Next 3 Years)",
-          "description": "Hypothetical potential value based on {target_company}'s needs and {company_name}'s relevant solutions (requires strong justification in text).",
-          "data": {{
-            "labels": ["Solution Area A", "Solution Area B", "Solution Area C"], // E.g., ["Managed Services", "Cloud Migration", "Network Security"]
-            "datasets": [
-              {{
-                "label": "Estimated Annual Opportunity (Specify Currency)",
-                "data": [estimated_value1, estimated_value2, estimated_value3], // Estimated values based on analysis in text
-                "backgroundColor": ["#FBBC05", "#34A853", "#EA4335"]
-              }}
-            ]
-          }},
-          "options": {{
-             "scales": {{ "yAxes": [{{"ticks": {{"beginAtZero": true}}}}] }}
-          }},
-          "source": "Derived analysis based on {target_company} strategy and {company_name} offerings [SSX referencing multiple points]"
-        }}
-        </GRAPH_JSON>
-        """)
 
     return f"""
-Comprehensive 3-Year Strategy Research Action Plan for {target_company} ({company_name} Specialist Approach)
+Comprehensive 3-Year Account Strategy Action Plan for {company_name} (NESIC Specialist Approach)
 
-Objective: Create a highly detailed, data-driven strategy research for the next three fiscal years, using {company_name}'s official solutions and insight. This plan must align with the verified data from Gemini and {company_name}'s public resources, focusing on a single entity: **{target_company}**. Avoid generic or unsupported content.
+Objective: Create a highly detailed, data-driven account strategy for the next three fiscal years, using NESIC's official solutions and insight. This plan must align with the verified data from Gemini and NESIC’s public resources, focusing on a single entity. Avoid generic or unsupported content.
 
-Target Audience Context: This plan is developed for {company_name}'s internal strategy and sales planning. All recommendations should reflect how {company_name} can best serve {target_company}, referencing real {company_name} offerings, known solution strengths, and verifiable data about {target_company}. {AUDIENCE_CONTEXT_REMINDER}
+Target Audience Context: This plan is developed for NEC Network and System Integration Corporation (NESIC). All recommendations should reflect how NESIC can best serve {company_name}, referencing real NESIC offerings, known solution strengths, and verifiable data. {AUDIENCE_CONTEXT_REMINDER}
 
 {language_instruction}
 
 Research Requirements:
-*   Use only data validated through Gemini or official {company_name} sources regarding {company_name}'s capabilities, and verifiable public data regarding {target_company}.
-*   Each fact or figure about {target_company} must be backed by an inline citation [SSX]. Omit any unverified points.
-*   If employee figures for {target_company} appear, provide a range (e.g., 5,000–8,000 employees) if that is how data is presented [SSX].
-*   Incorporate {company_name}'s known core competencies (managed services, network security, cloud integration, system integration, DX consulting, etc.) where relevant and explicitly link them to {target_company}'s needs.
+*   Use only data validated through Gemini or official NESIC sources.
+*   Each fact or figure must be backed by an inline citation [SSX]. Omit any unverified points.
+*   If employee figures appear, provide a range (e.g., 5,000–8,000 employees) if that is how data is presented.
+*   Incorporate NESIC's known core competencies (managed services, network security, cloud integration, etc.) where relevant.
 
 {HANDLING_MISSING_INFO_INSTRUCTION.format(language=language)}
 {RESEARCH_DEPTH_INSTRUCTION}
@@ -1675,75 +1034,67 @@ Research Requirements:
 {ANALYSIS_SYNTHESIS_INSTRUCTION}
 {ADDITIONAL_REFINED_INSTRUCTIONS}
 
-## 1. Customer Profile ({target_company} Overview & {company_name} Context)
-    *   Summarize {target_company}'s core business scope, primary industry, official headquarters location, current CEO name, and approximate employee range [SSX].
-    *   Reference any official {company_name} insights—e.g., documented prior dealings, specific industry expertise relevant to {target_company}, or potential synergy points identified in {company_name} strategy documents—if verifiable [SSX]. State clearly if no prior relationship exists.
+## 1. Customer Profile (Incorporating NESIC Context)
+    *   Summarize {company_name}'s business scope, HQ location, current CEO, and approximate employee range [SSX].
+    *   Reference any official NESIC insights—e.g., prior dealings, industry commentary, or synergy points—if verifiable [SSX].
 
-## 2. Revenue Analysis & Growth Drivers ({target_company})
-    *   Extract {target_company}'s total revenue for the last 3 available fiscal years (e.g., FY2021, FY2022, FY2023), clearly stating the currency [SSX].
-    *   Calculate year-over-year revenue growth rates for {target_company} [SSX].
-    *   Identify {target_company}'s primary business segments or revenue streams and note which are driving growth or decline, citing specific figures or percentages [SSX].
-    *   Discuss how specific {company_name} solutions (e.g., "Our managed cloud platform can support the expansion of their growing e-commerce segment [SSX]") could potentially reinforce high-growth areas or address weaknesses identified in {target_company}'s performance [SSX].
+## 2. Revenue Analysis & Growth Drivers
+    *   Extract revenue for FY2021, FY2022, and FY2023 if available [SSX].
+    *   Calculate YoY growth rates; identify segments/units fueling increases or declines [SSX].
+    *   Discuss how NESIC solutions can reinforce high-growth areas or address weaknesses [SSX].
 
-## 3. Financial Performance Indicators ({target_company})
-    *   Briefly outline {target_company}'s net income trends for the last 3 available fiscal years, stating the currency [SSX].
-    *   Note {target_company}'s most profitable divisions/business units if publicly reported [SSX].
-    *   Analyze potential alignments: "The high profitability of {target_company}'s [Division Name] [SSX] suggests an opportunity for {company_name}'s premium [Service Name] offering."
-    *   Use any available margin data (Operating Margin, Net Margin) or industry benchmarks to contextualize the potential value {company_name} could bring (e.g., improving efficiency in lower-margin segments) [SSX].
+## 3. Financial Performance Indicators
+    *   Briefly outline net income trends for 3 years [SSX].
+    *   Note profitable divisions/BU and potential NESIC alignments [SSX].
+    *   Use any margin/benchmark data to contextualize NESIC’s opportunity [SSX].
 
-## 4. Strategic Initiatives & Key {company_name} Alignments ({target_company})
-    *   List {target_company}'s publicly stated strategic initiatives for the next 1-3 years (e.g., digital transformation, supply chain optimization, sustainability goals), including details like announced investment amounts, timelines, or technology focus where available [SSX].
-    *   For each significant initiative of {target_company}, explicitly match it to a specific, relevant {company_name} solution or service category (e.g., "{target_company}'s 'Smart Factory' initiative [SSX] aligns directly with {company_name}'s IoT and Edge Computing solutions portfolio."). Be specific about the {company_name} offering.
-    *   Emphasize the direct synergy: "{company_name}'s proven expertise in [Specific Area, e.g., large-scale network modernization] directly addresses the core requirements of {target_company}'s stated goal to upgrade their infrastructure [SSX]."
+## 4. Strategic Initiatives & Key NESIC Alignments
+    *   List {company_name}’s stated initiatives (investment amounts, timeline, technology focus) [SSX].
+    *   Match each initiative to a specific NESIC solution (e.g., network modernization, security platforms) [SSX].
+    *   Emphasize the direct synergy between the initiative and a known NESIC capability.
 
-## 5. Decision-Making Structure & Stakeholders ({target_company})
-    *   Outline {target_company}'s high-level organizational structure, focusing on identifying key departments or roles likely responsible for IT strategy, procurement, digital transformation, and related budgets (e.g., CIO, CTO, Head of Digital, Supply Chain Director) based on official reports or website [SSX].
-    *   Note any documented historical {company_name}–{target_company} interactions (e.g., past projects mentioned in {company_name} case studies) if grounded and publicly verifiable [SSX]. Avoid speculation.
+## 5. Decision-Making Structure & Stakeholders
+    *   Outline the org chart focusing on IT budget owners or transformation leads [SSX].
+    *   Note any historical NESIC–{company_name} interactions if grounded [SSX].
 
-## 6. Critical Business Challenges ({target_company}) & {company_name} Solutions
-    *   Enumerate {target_company}'s major publicly acknowledged challenges (e.g., competitive pressures, operational inefficiencies, technology debt, sustainability targets, cybersecurity risks) based on their reports or reliable industry analysis [SSX].
-    *   For each significant challenge, propose definitive {company_name} solutions. Clearly articulate *how* the proposed {company_name} offering directly resolves or mitigates that specific challenge for {target_company} (e.g., "{target_company}'s challenge of integrating legacy systems [SSX] can be addressed by {company_name}'s System Integration services, utilizing our [Specific Methodology/Platform] to ensure seamless data flow.").
-    *   Avoid vague language; focus on concrete outcomes (e.g., "reduce operational costs," "improve system uptime," "accelerate time-to-market," "enhance security posture").
+## 6. Critical Business Challenges & NESIC Solutions
+    *   Enumerate {company_name}’s major challenges (operational, tech, strategic) [SSX].
+    *   Propose definitive NESIC solutions for each challenge, clarifying exactly how they resolve the issue [SSX].
+    *   Avoid vague language; specify outcomes, timelines, or metrics where possible.
 
-## 7. Technology Roadmap ({target_company}) with {company_name} Capabilities
-    *   Present {target_company}'s likely technology direction or focus areas for the next 3 years, gleaned from their strategic statements, investments, or job postings (e.g., cloud migration focus, AI adoption, cybersecurity upgrades, IoT implementation) [SSX].
-    *   Show how {company_name}'s core offerings (e.g., managed hybrid cloud infrastructure, AI development support, advanced cybersecurity monitoring services, IoT platform integration) directly enable or accelerate {target_company}'s technology roadmap [SSX]. Be specific about the relevant {company_name} services.
+## 7. Technology Roadmap with NESIC Capabilities
+    *   Present {company_name}’s 3-year tech roadmap gleaned from data [SSX].
+    *   Show how NESIC’s offerings (e.g., managed infrastructure, AI/IoT, cloud security) tie into that roadmap [SSX].
 
-## 8. Engagement Strategy ({company_name} targeting {target_company}, FY2025–2027)
-    *   Provide a structured, quarter-by-quarter high-level engagement plan for {company_name} over the next 3 years. For each period (e.g., Q1 2025, Q2 2025,...):
-        *   **Proposed {company_name} Solutions:** List 1-2 specific solutions/services to focus on.
-        *   **Target {target_company} Department/Initiative:** Identify the relevant department or strategic initiative within {target_company}.
-        *   **Justification:** Briefly explain why this is the right time/solution, linking directly to {target_company}'s stated needs, challenges, or roadmap points identified earlier [SSX].
-        *   **(Optional) Estimated Opportunity:** If justifiable based on {target_company}'s size, industry benchmarks, or investment announcements, provide a *rough, indicative* potential order value range (e.g., "Potential Deal Size: ¥50M - ¥150M") [SSX - requires strong source/justification]. Clearly label as estimate.
-    *   Ensure proposals directly address needs identified in previous sections [SSX].
+## 8. Engagement Strategy (FY2025–2027)
+    *   Provide a quarter-by-quarter plan:
+        - NESIC solutions proposed
+        - Target internal department/unit
+        - Direct need from {company_name}’s data
+        - Projected order values or spending estimates (if verifiable) [SSX]
+    *   No generic proposals—reference official challenges or initiatives [SSX].
 
-## 9. Competitive Positioning ({company_name} vs. rivals at {target_company})
-    *   Identify {target_company}'s known major existing IT vendors, system integrators, or strategic technology partners, based on available data (e.g., case studies, press releases) [SSX].
-    *   For each key competitor vendor identified, highlight {company_name}'s specific differentiators relevant to {target_company}'s context (e.g., "{company_name} offers stronger local support presence in Japan compared to Competitor X [SSX]"; "{company_name}'s specific expertise in [Niche Area] provides an advantage over Competitor Y for {target_company}'s [Specific Project] [SSX]"). Focus on technical capabilities, service delivery models, cost-effectiveness, industry expertise, or existing {company_name}-{target_company} synergies.
+## 9. Competitive Positioning
+    *   Identify existing IT or communications vendors/partners per available data [SSX].
+    *   Highlight NESIC’s specific differentiators (technical, cost, brand, synergy) against each competitor [SSX].
 
-## 10. Success Metrics & "Expected 2025 Results" for {company_name}
-    *   Define specific, measurable goals for {company_name}'s engagement with {target_company} for the first year (e.g., FY2025). Examples: "Secure 2 new project contracts," "Achieve 'Preferred Vendor' status in [Department Name]," "Generate ¥X million in revenue from {target_company}."
-    *   Include a short table or bullet list outlining these key performance indicators (KPIs).
-    *   Label this section clearly as "{company_name}'s Expected 2025 Results for {target_company} Engagement."
-    *   Briefly explain the rationale behind the targets (e.g., based on typical sales cycles for similar {company_name} clients, market potential analysis from section 8) [SSX].
+## 10. Success Metrics & “Expected 2025 Results”
+    *   Provide specific, measurable goals (e.g., “Close two major deals per quarter [SSX]”).
+    *   Include a short table or bullet list with metric definitions, referencing relevant baseline data [SSX].
+    *   Label them “Expected 2025 Results” or “Projected KPIs,” and explain the calculation rationale (e.g., prior NESIC engagement patterns, external benchmarks) [SSX].
 
-## 11. Final 3-Year Strategy Research Summary ({company_name}'s Approach to {target_company})
-    *   Conclude with a single paragraph (~300–500 words) integrating the key insights from the previous sections.
-    *   Summarize {target_company}'s situation (key challenges, strategic direction) [SSX].
-    *   Reiterate the core alignment between {target_company}'s needs and {company_name}'s specific capabilities and proposed solutions [SSX].
-    *   Outline the high-level strategic approach for {company_name} to engage {target_company} over the next 3 years, emphasizing mutual value creation.
-    *   Maintain focus on verifiable data and avoid introducing new, unsupported claims.
-
-{base_graph_instruction}
-{section_graphs}
+## 11. Final 3-Year Account Strategy Summary
+    *   Conclude with a single paragraph (~300–500 words) integrating all insights. Demonstrate how NESIC’s approach directly tackles {company_name}’s environment and fosters mutual growth [SSX].
+    *   Do not introduce new data; only synthesize prior points.
 
 Source and Accuracy Requirements:
-*   **Accuracy:** All data or solution references must be grounded in official records or valid {company_name}/Gemini insight about {target_company}.
-*   **Traceability:** Each factual claim about {target_company} includes [SSX], linking to final source(s).
-*   **Single-Entity Coverage:** Strictly reference **{target_company}**'s data; omit any similarly named entities.
+*   **Accuracy:** All data or solution references must be grounded in official records or valid NESIC/Gemini insight.  
+*   **Traceability:** Each fact or figure includes [SSX], linking to final source(s).  
+*   **Single-Entity Coverage:** Strictly reference {company_name}’s data; omit any similarly named entities.
 
 {completion_instructions}
 {FINAL_REVIEW_INSTRUCTION}
 {final_source_instructions}
 {formatting_instructions}
 """.strip()
+
