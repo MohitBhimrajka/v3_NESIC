@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #000000;
+    --color-white: #ffffff;
+    --color-navy: #000b37;
+    --color-lime: #85c20b;
+    --color-gray-dk: #474747;
+    --color-gray-lt: #c7c7c7;
+    --color-blue: #8289ec;
+    --color-lime-lt: #c3fb54;
+    --color-orange: #ff9a5a;
+    --color-purple: #b181ff;
+    --color-cyan: #31b8e1;
+    --color-pink: #ff94a8;
+
+    /* shadcn/ui variables */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    
+    --accent: 82 89% 40%;
+    --accent-foreground: 0 0% 100%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --ring: 82 89% 40%;
+    
+    --radius: 0.5rem;
+  }
+} 

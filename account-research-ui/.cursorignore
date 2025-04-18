@@ -1,0 +1,33 @@
+# Build outputs
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Generated files
+coverage/
+.nyc_output/
+
+# Large files that shouldn't be indexed
+*.pdf
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+
+# Environment variables
+.env
+.env.*
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Cache and temp files
+.cache/
+.temp/
+.tmp/ 
