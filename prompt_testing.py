@@ -297,7 +297,7 @@ COMPLETION_INSTRUCTION_TEMPLATE = textwrap.dedent("""\
 
 # --- Prompt Generating Functions ---
 
-def get_basic_prompt(company_name: str, language: str = "Japanese"):
+def get_basic_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for a comprehensive basic company profile with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -377,7 +377,7 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_financial_prompt(company_name: str, language: str = "Japanese"):
+def get_financial_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for a detailed financial analysis with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -476,7 +476,7 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_competitive_landscape_prompt(company_name: str, language: str = "Japanese"):
+def get_competitive_landscape_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for a detailed competitive analysis with nuanced grounding rules."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -546,7 +546,7 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_management_strategy_prompt(company_name: str, language: str = "Japanese"):
+def get_management_strategy_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for analyzing management strategy and mid-term business plan with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -611,7 +611,7 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_regulatory_prompt(company_name: str, language: str = "Japanese"):
+def get_regulatory_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for analyzing the regulatory environment for DX with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -660,7 +660,7 @@ Source and Accuracy Requirements:
 '''.strip()
 
 
-def get_crisis_prompt(company_name: str, language: str = "Japanese"):
+def get_crisis_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for analyzing digital crisis management and business continuity with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -707,7 +707,7 @@ Source and Accuracy Requirements:
 '''.strip()
 
 
-def get_digital_transformation_prompt(company_name: str, language: str = "Japanese"):
+def get_digital_transformation_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for analyzing DX strategy and execution with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -768,7 +768,7 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_business_structure_prompt(company_name: str, language: str = "Japanese"):
+def get_business_structure_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for analyzing business structure, geographic footprint, ownership, and leadership linkages with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -891,7 +891,7 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_vision_prompt(company_name: str, language: str = "Japanese"):
+def get_vision_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt focused on company vision and strategic purpose with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
@@ -938,7 +938,7 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_management_message_prompt(company_name: str, language: str = "Japanese"):
+def get_management_message_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """Generates a prompt for collecting strategic quotes from leadership with all enhancements."""
     language_instruction = get_language_instruction(language)
     final_source_instructions = FINAL_SOURCE_LIST_INSTRUCTIONS_TEMPLATE.format(language=language)
