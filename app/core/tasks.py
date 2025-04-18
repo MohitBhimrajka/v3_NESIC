@@ -1,4 +1,4 @@
-# test_agent_prompt.py
+"""Task processing functionality."""
 
 import asyncio
 import base64
@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 from google import genai
 from google.genai import types
-import prompt_testing
 import tiktoken
 import json
 from datetime import datetime
@@ -26,25 +25,11 @@ import logging
 from tqdm import tqdm
 import signal
 import sys
-from rich.console import Console
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
-from rich.logging import RichHandler
-from rich.panel import Panel
 from bs4 import BeautifulSoup
-from pdf_generator import process_markdown_files
 from config import SECTION_ORDER, AVAILABLE_LANGUAGES, PROMPT_FUNCTIONS, LLM_MODEL, LLM_TEMPERATURE
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True)]
-)
-logger = logging.getLogger("rich")
-
-# Rich console for better output
-console = Console()
+# Load environment variables from .env file
+load_dotenv()
 
 # Global flag for graceful shutdown
 shutdown_requested = False
@@ -53,18 +38,13 @@ def signal_handler(signum, frame):
     """Handle interrupt signals gracefully."""
     global shutdown_requested
     if not shutdown_requested:
-        console.print("\n[yellow]Shutdown requested. Completing current tasks...[/yellow]")
         shutdown_requested = True
     else:
-        console.print("\n[red]Force quitting...[/red]")
         sys.exit(1)
 
 # Register signal handlers
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
-
-# Load environment variables from .env file
-load_dotenv()
 
 def count_tokens(text: str) -> int:
     """Count the number of tokens in a text string."""
@@ -139,7 +119,7 @@ def generate_content(client: genai.Client, prompt: str, output_path: Path) -> Di
         }
     except Exception as e:
         execution_time = time.time() - start_time
-        logger.error(f"Error generating content for {output_path.name}: {str(e)}")
+        logging.error(f"Error generating content for {output_path.name}: {str(e)}")
         return {
             "input_tokens": 0,
             "output_tokens": 0,
@@ -202,7 +182,7 @@ def get_user_input() -> tuple[str, str, list[str], list[tuple[str, str]]]:
     
     return company_name, platform_company_name, language_keys, selected_prompts
 
-def generate_all_prompts(company_name: str, platform_company_name: str, language: str, selected_prompts: list[tuple[str, str]], progress=None, language_task_id=None):
+def run_generation(company_name: str, platform_company_name: str, language: str, selected_prompts: list[tuple[str, str]], progress=None, language_task_id=None):
     """Generate content for selected prompts in parallel using ThreadPoolExecutor."""
     start_time = time.time()
     
@@ -270,7 +250,8 @@ def generate_all_prompts(company_name: str, platform_company_name: str, language
                 break
                 
             # Get the prompt function from the prompt_testing module
-            prompt_func = getattr(prompt_testing, prompt_func_name)
+            from app.core.prompts import get_prompt_fn
+            prompt_func = get_prompt_fn(prompt_func_name)
             prompt = prompt_func(company_name, platform_company_name, language)
             output_path = markdown_dir / f"{prompt_name}.md"
             
@@ -307,7 +288,7 @@ def generate_all_prompts(company_name: str, platform_company_name: str, language
                             description=f"[yellow]{language}: {prompt_name:.<30}⚠"
                         )
             except Exception as e:
-                logger.error(f"Error processing {prompt_name}: {str(e)}")
+                logging.error(f"Error processing {prompt_name}: {str(e)}")
                 results[prompt_name] = {
                     "status": "error",
                     "error": str(e)
@@ -346,123 +327,4 @@ def generate_all_prompts(company_name: str, platform_company_name: str, language
     
     return token_stats, base_dir
 
-def main():
-    try:
-        # Get user input including prompt selection
-        company_name, platform_company_name, language_keys, selected_prompts = get_user_input()
-        
-        # Create tasks for each language
-        tasks = []
-        for language_key in language_keys:
-            language = AVAILABLE_LANGUAGES[language_key]
-            console.print(f"\nGenerating prompts for {company_name} in {language}...")
-            console.print(f"Using model: {LLM_MODEL} with temperature: {LLM_TEMPERATURE}")
-            console.print("Output will be saved in the 'output' directory.\n")
-            tasks.append((company_name, platform_company_name, language))
-
-        # Calculate optimal number of workers for language-level parallelization
-        max_workers_languages = max(len(tasks) * 2, 20)
-        
-        # Process all languages in parallel using ThreadPoolExecutor
-        results = []
-        
-        # Create a single progress display for all languages
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(complete_style="green", finished_style="green"),
-            TaskProgressColumn(),
-            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-            console=console,
-            expand=True
-        ) as progress:
-            # Create language-level progress tasks
-            language_tasks = {
-                lang: progress.add_task(f"[cyan]{lang} Progress", total=len(selected_prompts))
-                for _, _, lang in tasks
-            }
-            
-            with ThreadPoolExecutor(max_workers=max_workers_languages) as executor:
-                futures = []
-                for company, platform_company, lang in tasks:
-                    if shutdown_requested:
-                        break
-                    future = executor.submit(
-                        generate_all_prompts,
-                        company,
-                        platform_company,
-                        lang,
-                        selected_prompts,  # Pass selected prompts
-                        progress=progress,
-                        language_task_id=language_tasks[lang]
-                    )
-                    futures.append((company, platform_company, lang, future))
-                
-                # Collect results
-                for company, platform_company, lang, future in futures:
-                    try:
-                        if not shutdown_requested:
-                            token_stats, base_dir = future.result()
-                            results.append((lang, token_stats, base_dir))
-                            
-                            # Display results for this language
-                            console.print(f"\n[bold]Generation Summary for {lang}:[/bold]")
-                            console.print(Panel.fit(
-                                "\n".join([
-                                    f"Total Execution Time: {format_time(token_stats['summary']['total_execution_time'])}",
-                                    f"Total Tokens: {token_stats['summary']['total_tokens']:,}",
-                                    f"Successful Prompts: [green]{token_stats['summary']['successful_prompts']}[/]",
-                                    f"Failed Prompts: [red]{token_stats['summary']['failed_prompts']}[/]"
-                                ]),
-                                title=f"Results - {lang}",
-                                border_style="cyan"
-                            ))
-
-                            # Generate PDF if there were successful prompts
-                            if token_stats['summary']['successful_prompts'] > 0:
-                                console.print(f"\n[bold cyan]Generating PDF report for {lang}...[/bold cyan]")
-                                pdf_path = process_markdown_files(base_dir, company_name, lang)
-                                
-                                if pdf_path:
-                                    console.print(f"\n[green]PDF report generated for {lang}: {pdf_path}[/green]")
-                                else:
-                                    console.print(f"\n[yellow]PDF generation failed for {lang}.[/yellow]")
-                        else:
-                            console.print(f"\n[yellow]Generation process interrupted for {lang}.[/yellow]")
-                    except Exception as e:
-                        console.print(f"\n[red]Error processing {lang}: {str(e)}[/red]")
-                        logger.exception(f"Error processing {lang}")
-
-        if shutdown_requested:
-            console.print("\n[yellow]Generation process interrupted.[/yellow]")
-            return
-
-        # Display final summary for all languages
-        if results:
-            console.print("\n[bold]Overall Generation Summary:[/bold]")
-            total_execution_time = sum(stats['summary']['total_execution_time'] for _, stats, _ in results)
-            total_tokens = sum(stats['summary']['total_tokens'] for _, stats, _ in results)
-            total_successful = sum(stats['summary']['successful_prompts'] for _, stats, _ in results)
-            total_failed = sum(stats['summary']['failed_prompts'] for _, stats, _ in results)
-            
-            console.print(Panel.fit(
-                "\n".join([
-                    f"Total Languages Processed: {len(results)}",
-                    f"Total Execution Time: {format_time(total_execution_time)}",
-                    f"Total Tokens Across All Languages: {total_tokens:,}",
-                    f"Total Successful Prompts: [green]{total_successful}[/]",
-                    f"Total Failed Prompts: [red]{total_failed}[/]"
-                ]),
-                title="Overall Results",
-                border_style="cyan"
-            ))
-        
-    except KeyboardInterrupt:
-        console.print("\n[yellow]Process interrupted by user.[/yellow]")
-    except Exception as e:
-        console.print(f"\nError occurred: {str(e)}")
-        logger.exception("Unexpected error occurred")
-        console.print("Please check your configuration and try again.")
-
-if __name__ == "__main__":
-    main()
+__all__ = ["run_generation", "get_user_input", "format_time"] 

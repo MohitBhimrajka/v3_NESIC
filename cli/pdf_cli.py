@@ -3,7 +3,8 @@
 import argparse
 from pathlib import Path
 import sys
-from pdf_generator import process_markdown_files
+sys.path.append(str(Path(__file__).parent.parent))
+from app.core.generator import process_markdown_files
 from typing import Optional, List, Dict, Set, Tuple
 import os
 import re

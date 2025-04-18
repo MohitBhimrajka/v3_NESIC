@@ -53,7 +53,7 @@ LLM_TEMPERATURE=0.63
 Run the main script:
 
 ```bash
-python test_agent_prompt.py
+python cli/test_agent_prompt.py
 ```
 
 Follow the prompts to enter:
@@ -74,15 +74,33 @@ The script will then:
 If you already have markdown files in the correct structure (e.g., within an output directory generated previously), you can generate a PDF without re-running the LLM:
 
 ```bash
-python generate_pdf.py "Confirmed Company Name" "Language" -o path/to/output/directory_containing_markdown_and_pdf_subdirs
+python cli/generate_pdf.py "Confirmed Company Name" "Language" -o path/to/output/directory_containing_markdown_and_pdf_subdirs
 ```
 *Note: This script expects the output structure created by `test_agent_prompt.py`.*
 
 *Alternatively, use the interactive PDF CLI:*
 ```bash
-python pdf_cli.py --interactive
+python cli/pdf_cli.py --interactive
 ```
 *This CLI helps find existing generated reports in the `output` directory and regenerate PDFs.*
+
+### Run API Server
+
+You can also use the API server to generate reports:
+
+```bash
+uvicorn app.api.main:app --reload
+```
+
+This starts a FastAPI server with the following endpoints:
+- `POST /generate` - Start a generation task
+- `GET /status/{task_id}` - Check task status
+- `GET /result/{task_id}/pdf` - Download the generated PDF
+- `GET /tasks` - List all tasks
+- `GET /languages` - List available languages
+- `GET /sections` - List available sections
+
+Visit `http://127.0.0.1:8000/docs` for interactive API documentation.
 
 ## Output Structure
 
