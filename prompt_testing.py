@@ -999,10 +999,10 @@ Source and Accuracy Requirements:
 """.strip()
 
 
-def get_strategy_research_prompt(company_name: str, parent_company_name: str, language: str = "Japanese"):
+def get_strategy_research_prompt(company_name: str, platform_company_name: str, language: str = "Japanese"):
     """
-    Generates a prompt for creating a comprehensive 3-year Strategy Research Action Plan
-    specifically for {company_name}, considering the perspective and capabilities of the parent company ({parent_company_name}).
+    Generates a prompt for creating a comprehensive 3-year Account Strategy Action Plan
+    specifically for {company_name}, leveraging {platform_company_name}'s official context and capabilities.
     The plan uses verifiable data from Gemini to craft a highly targeted approach, maintaining single-entity coverage.
     All factual claims must have an inline citation [SSX].
     """
@@ -1012,19 +1012,21 @@ def get_strategy_research_prompt(company_name: str, parent_company_name: str, la
     completion_instructions = COMPLETION_INSTRUCTION_TEMPLATE
 
     return f"""
-Comprehensive 3-Year Strategy Research Action Plan for {company_name} (Perspective: {parent_company_name})
+Comprehensive 3-Year Account Strategy Action Plan for {company_name} ({platform_company_name} Specialist Approach)
 
-Objective: Create a highly detailed, data-driven strategy research plan for {company_name} for the next three fiscal years, from the perspective of {parent_company_name}. This plan must align with verified data from Gemini, focusing on {company_name}. Avoid generic or unsupported content. Identify potential strategic synergies, risks, and opportunities for {parent_company_name} in relation to {company_name}.
+Objective: Create a detailed, data-driven account strategy for the next three fiscal years, leveraging {platform_company_name}'s official solutions and insights. This plan must be grounded in verified data from Gemini and {platform_company_name}'s public resources, focusing exclusively on {company_name}. Avoid generic or unsupported content.
 
-Target Audience Context: This plan is developed for strategic analysis within {parent_company_name}. All recommendations should reflect how {company_name}'s strategy, market position, and performance might impact or align with {parent_company_name}'s goals, referencing verifiable data. {AUDIENCE_CONTEXT_REMINDER}
+Target Audience Context: This plan is developed for {platform_company_name}. All recommendations should reflect how {platform_company_name} can best serve {company_name}, referencing real {platform_company_name} offerings, known solution strengths, and verifiable data. {AUDIENCE_CONTEXT_REMINDER}
 
 {language_instruction}
 
 Research Requirements:
-*   Use only data validated through Gemini search results.
+*   Use only data validated through Gemini or official {platform_company_name} sources.
 *   Each fact or figure must be backed by an inline citation [SSX]. Omit any unverified points.
-*   If employee figures appear, provide a range (e.g., 5,000–8,000 employees) if that is how data is presented [SSX].
-*   Incorporate {parent_company_name}'s known core competencies or strategic interests where relevant for synergy analysis [SSX, if applicable].
+*   If employee figures appear, provide a range (e.g., 5,000–8,000 employees) if that is how data is presented.
+*   Incorporate {platform_company_name}'s known core competencies where relevant.
+*   Focus on actionable insights that can directly inform strategic decisions.
+*   Maintain strict single-entity coverage for {company_name}.
 
 {HANDLING_MISSING_INFO_INSTRUCTION.format(language=language)}
 {RESEARCH_DEPTH_INSTRUCTION}
@@ -1033,62 +1035,80 @@ Research Requirements:
 {ANALYSIS_SYNTHESIS_INSTRUCTION}
 {ADDITIONAL_REFINED_INSTRUCTIONS}
 
-## 1. Target Company Profile (Context: {parent_company_name})
-    *   Summarize {company_name}'s business scope, HQ location, current CEO, and approximate employee range [SSX].
-    *   Reference any official insights from {parent_company_name}'s perspective—e.g., known industry commentary, potential overlap, or strategic fit—if verifiable [SSX].
+## 1. Customer Profile
+    *   Provide a comprehensive overview of {company_name}'s business scope, HQ location, current CEO, and approximate employee range [SSX].
+    *   Reference any official {platform_company_name} insights—e.g., prior dealings, industry commentary, or synergy points—if verifiable [SSX].
+    *   Highlight key business units and their strategic importance [SSX].
 
-## 2. Revenue Analysis & Growth Drivers ({company_name})
-    *   Extract {company_name}'s revenue for FY2021, FY2022, and FY2023 if available [SSX].
-    *   Calculate YoY growth rates; identify segments/units fueling increases or declines [SSX].
-    *   Discuss how {company_name}'s growth trajectory might present opportunities or risks for {parent_company_name} [SSX].
+## 2. Revenue Analysis & Growth Drivers
+    *   Extract and analyze revenue data for FY2021, FY2022, and FY2023 [SSX].
+    *   Calculate YoY growth rates and identify key segments/units driving changes [SSX].
+    *   Map {platform_company_name} solutions to high-growth areas and underperforming segments [SSX].
+    *   Include specific revenue figures with currency and reporting periods [SSX].
 
-## 3. Financial Performance Indicators ({company_name})
-    *   Briefly outline {company_name}'s net income trends for 3 years [SSX].
-    *   Note profitable divisions/BU and potential areas of interest or competition for {parent_company_name} [SSX].
-    *   Use any margin/benchmark data to contextualize {company_name}'s performance relative to {parent_company_name}'s interests [SSX].
+## 3. Financial Performance Indicators
+    *   Analyze net income trends over the past 3 years with specific figures [SSX].
+    *   Identify profitable divisions/BU and potential {platform_company_name} alignment opportunities [SSX].
+    *   Use margin/benchmark data to quantify {platform_company_name}'s potential impact [SSX].
+    *   Include specific financial metrics with proper context [SSX].
 
-## 4. Strategic Initiatives ({company_name}) & Potential {parent_company_name} Alignments
-    *   List {company_name}'s stated initiatives (investment amounts, timeline, technology focus) [SSX].
-    *   Analyze potential alignment or conflict with {parent_company_name}'s strategic goals or capabilities [SSX].
-    *   Emphasize direct synergies or competitive overlaps between {company_name}'s initiatives and {parent_company_name}'s known strategy.
+## 4. Strategic Initiatives & Key Alignments
+    *   Document {company_name}'s stated initiatives with investment amounts, timelines, and technology focus [SSX].
+    *   Match each initiative to specific {platform_company_name} solutions with clear value propositions [SSX].
+    *   Quantify potential impact where possible [SSX].
+    *   Include specific dates and investment figures [SSX].
 
-## 5. Decision-Making Structure & Key Personnel ({company_name})
-    *   Outline the org chart focusing on strategic decision-makers or transformation leads within {company_name} [SSX].
-    *   Note key individuals relevant from {parent_company_name}'s perspective (e.g., potential contacts, competitors).
+## 5. Decision-Making Structure & Stakeholders
+    *   Map the organizational structure focusing on IT and digital transformation leadership [SSX].
+    *   Document any historical {platform_company_name}–{company_name} interactions with specific outcomes [SSX].
+    *   Identify key decision-makers and their roles [SSX].
+    *   Include specific dates and interaction details [SSX].
 
-## 6. Critical Business Challenges ({company_name}) & Implications for {parent_company_name}
-    *   Enumerate {company_name}'s major challenges (operational, tech, strategic) [SSX].
-    *   Analyze how these challenges might impact {parent_company_name} (e.g., supply chain risk, market disruption, partnership opportunity) [SSX].
+## 6. Critical Business Challenges & Solutions
+    *   Enumerate {company_name}'s major challenges with specific examples [SSX].
+    *   Propose detailed {platform_company_name} solutions for each challenge [SSX].
+    *   Include specific metrics, timelines, and expected outcomes [SSX].
+    *   Reference similar successful implementations where applicable [SSX].
 
-## 7. Technology Roadmap ({company_name}) & Relevance to {parent_company_name}
-    *   Present {company_name}'s 3-year tech roadmap gleaned from data [SSX].
-    *   Assess the relevance of this roadmap to {parent_company_name} (e.g., technology adoption trends, potential integration points, competitive tech landscape) [SSX].
+## 7. Technology Roadmap
+    *   Present {company_name}'s 3-year technology roadmap with specific initiatives [SSX].
+    *   Map {platform_company_name} offerings to each initiative with clear value propositions [SSX].
+    *   Include specific technology areas and implementation timelines [SSX].
+    *   Reference similar successful deployments [SSX].
 
-## 8. Strategic Interaction Plan (Hypothetical {parent_company_name} View - FY2025–2027)
-    *   Outline a hypothetical engagement strategy IF {parent_company_name} were to interact with {company_name}:
-        - Potential areas for collaboration or competition.
-        - Target internal department/unit within {company_name}.
-        - Alignment with {company_name}'s stated needs or challenges [SSX].
-        - Projected strategic value or risks for {parent_company_name}.
-    *   Base proposals on official challenges or initiatives of {company_name} [SSX].
+## 8. Engagement Strategy (FY2025–2027)
+    *   Provide a detailed quarter-by-quarter plan:
+        - Specific {platform_company_name} solutions
+        - Target departments/units
+        - Direct business needs
+        - Projected order values (if available) [SSX]
+    *   Include specific dates, metrics, and success criteria [SSX].
+    *   Reference official challenges or initiatives [SSX].
 
-## 9. Competitive Positioning ({company_name} in its Market)
-    *   Identify {company_name}'s existing major competitors and partners per available data [SSX].
-    *   Analyze {company_name}'s market position and how it affects the broader landscape relevant to {parent_company_name} [SSX].
+## 9. Competitive Positioning
+    *   Identify existing IT/communications vendors with specific details [SSX].
+    *   Highlight {platform_company_name}'s differentiators against each competitor [SSX].
+    *   Include specific metrics and comparison points [SSX].
+    *   Reference market share data where available [SSX].
 
-## 10. Key Performance Indicators ({company_name}) & Strategic Implications
-    *   List key operational or financial KPIs for {company_name} based on available data [SSX].
-    *   Analyze what these KPIs imply about {company_name}'s health, strategy execution, and potential future direction, considering {parent_company_name}'s interests [SSX].
-    *   Label this section clearly based on {company_name}'s performance.
+## 10. Success Metrics & Expected Results
+    *   Define specific, measurable goals with clear metrics [SSX].
+    *   Present a detailed table of KPIs with baseline data and targets [SSX].
+    *   Include calculation methodology and data sources [SSX].
+    *   Reference industry benchmarks where applicable [SSX].
 
-## 11. Final 3-Year Strategic Research Summary ({parent_company_name} Perspective)
-    *   Conclude with a single paragraph (~300–500 words) integrating all insights from {parent_company_name}'s viewpoint. Summarize the strategic relevance of {company_name}, highlighting key opportunities, risks, and potential interaction points [SSX].
-    *   Do not introduce new data; only synthesize prior points.
+## 11. Final 3-Year Account Strategy Summary
+    *   Provide a comprehensive synthesis (300–500 words) integrating all insights [SSX].
+    *   Demonstrate clear alignment between {platform_company_name}'s capabilities and {company_name}'s needs [SSX].
+    *   Include specific metrics and expected outcomes [SSX].
+    *   Reference all key findings from previous sections [SSX].
 
 Source and Accuracy Requirements:
-*   **Accuracy:** All data must be grounded in official records or valid Gemini insight for {company_name}.
-*   **Traceability:** Each fact or figure includes [SSX], linking to final source(s).
-*   **Single-Entity Coverage:** Strictly reference {company_name}'s data; omit any similarly named entities.
+*   **Accuracy:** All data must be grounded in official records or valid {platform_company_name}/Gemini insight.
+*   **Traceability:** Every fact must include [SSX], linking to final source(s).
+*   **Single-Entity Coverage:** Strictly reference {company_name}'s data.
+*   **Currency & Dates:** Include specific currency and dates for all financial data.
+*   **Metrics:** Provide specific metrics with clear definitions and sources.
 
 {completion_instructions}
 {FINAL_REVIEW_INSTRUCTION}
