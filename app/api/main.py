@@ -13,7 +13,6 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 import asyncio
 import logging
-from threading import Thread
 
 # Configure logging
 logging.basicConfig(
@@ -140,19 +139,15 @@ async def generate_pdf(
         "request": request.dict(),
     }
     
-    # Start generation in background
-    def run_in_thread():
-        process_generation_task(
-            task_id,
-            request.company_name,
-            request.platform_company_name,
-            request.language_key,
-            request.sections,
-        )
-    
-    thread = Thread(target=run_in_thread)
-    thread.daemon = True
-    thread.start()
+    # Use FastAPI's BackgroundTasks to run the generation task
+    background_tasks.add_task(
+        process_generation_task,
+        task_id,
+        request.company_name,
+        request.platform_company_name,
+        request.language_key,
+        request.sections,
+    )
     
     return TaskResponse(task_id=task_id, status="pending", created_at=now)
 

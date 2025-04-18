@@ -3,7 +3,7 @@ markdown==3.4.3
 pyyaml==6.0.1
 beautifulsoup4==4.12.2
 rich==13.5.3
-google-generativeai
+google-generativeai==0.8.4
 weasyprint>=60.1
 pygments>=2.16.1
 jinja2>=3.1.2
@@ -12,4 +12,6 @@ gitingest>=0.1.4
 matplotlib>=3.5.0
 fastapi>=0.111.0
 uvicorn[standard]>=0.29
-python-multipart 
+python-multipart
+pytest>=7.0.0
+httpx>=0.24.0  # Required for TestClient in FastAPI 

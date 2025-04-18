@@ -2,8 +2,6 @@
 import argparse
 from pathlib import Path
 import sys
-# Update the import path to use the module from the parent directory
-sys.path.append(str(Path(__file__).parent.parent))
 from app.core.generator import process_markdown_files
 from rich.console import Console
 from rich.panel import Panel

@@ -3,7 +3,6 @@
 import argparse
 from pathlib import Path
 import sys
-sys.path.append(str(Path(__file__).parent.parent))
 from app.core.generator import process_markdown_files
 from typing import Optional, List, Dict, Set, Tuple
 import os

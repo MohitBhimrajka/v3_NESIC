@@ -16,91 +16,94 @@ This project generates comprehensive company analysis reports in multiple langua
 
 ## Project Structure
 
-- `test_agent_prompt.py`: Main script to handle user input, company confirmation, LLM calls, and PDF generation orchestration.
-- `generate_pdf.py`: Standalone script to generate PDFs from existing markdown files.
-- `pdf_generator.py`: PDF generation logic and utilities.
-- `prompt_testing.py`: Contains prompt templates for each section, designed to focus on the confirmed company.
-- `config.py`: Configuration constants and settings.
-- `templates/`: Contains HTML templates for PDF generation.
-- `output/`: Directory where generated content is stored.
+The project is organized as follows:
+
+```
+.
+├── app/                # Main application package
+│   ├── api/            # API routes and endpoints
+│   │   └── main.py     # FastAPI application
+│   └── core/           # Core functionality
+│       ├── pdf/        # PDF generation module
+│       │   ├── generator.py  # PDF generation functionality
+│       │   └── __init__.py
+│       ├── generator.py      # Re-exports from pdf module
+│       ├── prompts.py        # Prompt utilities
+│       ├── tasks.py          # Task processing
+│       └── __init__.py
+├── cli/                # Command-line interface scripts
+│   ├── generate_pdf.py # Script to generate PDF from markdown
+│   ├── pdf_cli.py      # CLI for PDF generation
+│   └── test_agent_prompt.py  # Script to test agent prompts
+├── config.py           # Configuration settings
+├── prompt_testing.py   # Prompt functions for testing
+├── templates/          # Templates for reports
+│   ├── assets/         # Images and other assets for PDF
+│   ├── css/            # CSS files for PDF styling
+│   └── enhanced_report_template.html  # Main HTML template
+├── tests/              # Test suite
+│   └── test_app_boot.py  # Basic smoke tests
+├── requirements.txt    # Project dependencies
+├── setup.py            # Package installation setup
+└── README.md           # This file
+```
 
 ## Setup
 
-1.  Clone the repository
-2.  Install dependencies:
+### Dependencies
 
-```bash
-pip install -r requirements.txt
-```
+1. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3.  Create a `.env` file with your Gemini API key (see `.env.example`):
+2. System dependencies for WeasyPrint (PDF generation):
+   - **macOS**: `brew install cairo pango gdk-pixbuf libffi`
+   - **Ubuntu/Debian**: `apt-get install build-essential python3-dev python3-pip python3-setuptools python3-wheel python3-cffi libcairo2 libpango-1.0-0 libpangocairo-1.0-0 libgdk-pixbuf2.0-0 libffi-dev shared-mime-info`
+   - **Windows**: See [WeasyPrint installation docs](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#windows)
 
-```
-GEMINI_API_KEY=your_api_key_here
-```
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API keys
+   ```
 
-4.  Optional: Configure LLM parameters in `.env`:
-
-```
-LLM_MODEL=gemini-2.5-pro-preview-03-25
-LLM_TEMPERATURE=0.63
-```
+4. Install the package in development mode (recommended):
+   ```bash
+   pip install -e .
+   ```
 
 ## Usage
 
-### Generate a Complete Report
+### API Server
 
-Run the main script:
-
-```bash
-python cli/test_agent_prompt.py
-```
-
-Follow the prompts to enter:
-1.  **Target company name** (e.g., "Marvel", "Acme Corp"). The script will use this to search for potential matches.
-2.  **Platform company name** (e.g., "NESIC") - used for strategy research and alignment sections.
-3.  **Confirm the correct target company:** The script will display potential matches found via search (including name, website, industry, ticker). Select the correct company number from the list, choose 'm' to manually enter key details (website/ticker) if the desired company isn't listed or parsing fails, or 'c' to cancel. *This step is crucial for ensuring the report focuses on the intended entity.*
-4.  **Language selection** (1-10, comma separated).
-5.  **Section selection** (comma-separated numbers, or 0 for all).
-
-The script will then:
-1.  Generate all selected sections **for the confirmed company** in parallel.
-2.  Save markdown files in `output/<ConfirmedCompanyName>_<language>_<timestamp>/markdown/`
-3.  Generate a PDF report in `output/<ConfirmedCompanyName>_<language>_<timestamp>/pdf/`
-4.  Save usage statistics and configuration (including confirmed company details) in `output/<ConfirmedCompanyName>_<language>_<timestamp>/misc/`
-
-### Generate a PDF from Existing Markdown Files
-
-If you already have markdown files in the correct structure (e.g., within an output directory generated previously), you can generate a PDF without re-running the LLM:
-
-```bash
-python cli/generate_pdf.py "Confirmed Company Name" "Language" -o path/to/output/directory_containing_markdown_and_pdf_subdirs
-```
-*Note: This script expects the output structure created by `test_agent_prompt.py`.*
-
-*Alternatively, use the interactive PDF CLI:*
-```bash
-python cli/pdf_cli.py --interactive
-```
-*This CLI helps find existing generated reports in the `output` directory and regenerate PDFs.*
-
-### Run API Server
-
-You can also use the API server to generate reports:
-
+Start the API server:
 ```bash
 uvicorn app.api.main:app --reload
 ```
 
-This starts a FastAPI server with the following endpoints:
-- `POST /generate` - Start a generation task
-- `GET /status/{task_id}` - Check task status
-- `GET /result/{task_id}/pdf` - Download the generated PDF
-- `GET /tasks` - List all tasks
-- `GET /languages` - List available languages
-- `GET /sections` - List available sections
+The API will be available at http://127.0.0.1:8000 with interactive docs at http://127.0.0.1:8000/docs
 
-Visit `http://127.0.0.1:8000/docs` for interactive API documentation.
+### Command Line Interface
+
+#### Generate a company report:
+```bash
+# Using the installed CLI tool
+supervity-pdf --company-name "Google" --language "English" --interactive
+
+# Or directly with the module
+python -m cli.pdf_cli --company-name "Google" --language "English"
+```
+
+#### Generate a PDF from existing markdown files:
+```bash
+python -m cli.generate_pdf "Google" "English" --output-dir ./output
+```
+
+#### Test the agent prompt generation (full process):
+```bash
+python -m cli.test_agent_prompt
+```
 
 ## Output Structure
 
@@ -152,3 +155,22 @@ This project is proprietary and confidential.
 - Python 3.8+
 - Google Generative AI API access
 - Dependencies listed in `requirements.txt`
+
+## System Requirements
+
+The application has several system dependencies:
+
+1. **Python 3.8+** - Required for all functionality
+
+2. **WeasyPrint Dependencies** - For PDF generation:
+   WeasyPrint requires system libraries for proper PDF rendering:
+   - Cairo, Pango and GDK-PixBuf need to be installed separately
+   - Refer to [WeasyPrint's installation docs](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html) for platform-specific instructions
+   
+3. **Google Generative AI** - For content generation:
+   - Requires an API key from Google AI Studio
+   - Version is pinned to 0.8.4 for stability
+
+4. **FastAPI and Uvicorn** - For API server functionality
+
+All Python dependencies are specified in requirements.txt and setup.py, but the system libraries for WeasyPrint must be installed separately.
